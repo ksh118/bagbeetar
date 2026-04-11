@@ -29,58 +29,31 @@
             flex-shrink: 0;
             z-index: 10;
         }
-        .topbar-title {
-            color: white;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-        }
+        .topbar-title { color: white; font-size: 15px; font-weight: 700; letter-spacing: 0.03em; }
         .topbar-title span { color: #777; font-weight: 400; margin-left: 8px; font-size: 13px; }
         .btn-save {
-            padding: 9px 22px;
-            background: white;
-            color: #111;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.15s, opacity 0.15s;
+            padding: 9px 22px; background: white; color: #111;
+            border: none; border-radius: 10px; font-size: 14px;
+            font-weight: 700; cursor: pointer; transition: background 0.15s, opacity 0.15s;
         }
         .btn-save:hover { background: #eee; }
         .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
 
         /* ── 본문 ── */
-        .body-wrap {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
+        .body-wrap { flex: 1; display: flex; overflow: hidden; }
 
         /* ── 사이드바 ── */
         .sidebar {
-            width: 196px;
-            flex-shrink: 0;
-            background: #1a1a1a;
-            display: flex;
-            flex-direction: column;
-            padding: 16px 10px 24px;
-            gap: 2px;
-            overflow-y: auto;
+            width: 196px; flex-shrink: 0; background: #1a1a1a;
+            display: flex; flex-direction: column;
+            padding: 16px 10px 24px; gap: 2px; overflow-y: auto;
         }
         .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 11px 14px;
-            border-radius: 10px;
-            cursor: pointer;
-            color: #777;
-            font-size: 13px;
-            font-weight: 600;
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 14px; border-radius: 10px;
+            cursor: pointer; color: #777; font-size: 13px; font-weight: 600;
             transition: background 0.15s, color 0.15s;
-            user-select: none;
-            white-space: nowrap;
+            user-select: none; white-space: nowrap;
         }
         .nav-item:hover { background: rgba(255,255,255,0.07); color: #ccc; }
         .nav-item.active { background: rgba(255,255,255,0.12); color: #fff; }
@@ -89,57 +62,32 @@
 
         /* ── 메인 패널 ── */
         .main-panel {
-            flex: 1;
-            overflow-y: auto;
-            padding: 36px 40px;
-            background: #f5f5f8;
+            flex: 1; overflow-y: auto;
+            padding: 36px 40px; background: #f5f5f8;
         }
-
         .tab-panel { display: none; max-width: 680px; }
         .tab-panel.active { display: block; }
-
-        .panel-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: #111;
-            margin-bottom: 4px;
-        }
-        .panel-desc {
-            font-size: 13px;
-            color: #aaa;
-            margin-bottom: 28px;
-            line-height: 1.5;
-        }
+        .panel-title { font-size: 22px; font-weight: 800; color: #111; margin-bottom: 4px; }
+        .panel-desc { font-size: 13px; color: #aaa; margin-bottom: 28px; line-height: 1.5; }
 
         /* ── 카드 ── */
         .card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
+            background: white; border-radius: 16px;
+            padding: 24px; margin-bottom: 20px;
             box-shadow: 0 1px 6px rgba(0,0,0,0.05);
         }
         .card-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: #bbb;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            margin-bottom: 16px;
+            font-size: 11px; font-weight: 700; color: #bbb;
+            text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 16px;
         }
 
         /* ── 인풋 ── */
         input[type="text"], input[type="url"] {
-            width: 100%;
-            padding: 11px 14px;
-            border: 1.5px solid #ebebeb;
-            border-radius: 10px;
-            font-size: 14px;
-            outline: none;
+            width: 100%; padding: 11px 14px;
+            border: 1.5px solid #ebebeb; border-radius: 10px;
+            font-size: 14px; outline: none;
             transition: border-color 0.2s, background 0.2s;
-            margin-bottom: 10px;
-            background: #fafafa;
-            color: #111;
+            margin-bottom: 10px; background: #fafafa; color: #111;
             font-family: inherit;
         }
         input[type="text"]:focus, input[type="url"]:focus { border-color: #333; background: #fff; }
@@ -148,18 +96,12 @@
         .input-label { font-size: 12px; font-weight: 600; color: #888; margin-bottom: 6px; display: block; }
         .input-group { margin-bottom: 16px; }
         .input-group:last-child { margin-bottom: 0; }
-
-        /* ── 2열 ── */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-        /* ── 색상 ── */
         .color-field { display: flex; flex-direction: column; gap: 6px; }
         .color-field small { font-size: 12px; color: #888; font-weight: 600; }
         input[type="color"] {
-            width: 100%; height: 50px;
-            border: 1.5px solid #ebebeb;
-            border-radius: 10px;
-            cursor: pointer; padding: 4px 6px; background: #fafafa;
+            width: 100%; height: 50px; border: 1.5px solid #ebebeb;
+            border-radius: 10px; cursor: pointer; padding: 4px 6px; background: #fafafa;
         }
 
         /* ── 프로필 ── */
@@ -187,12 +129,7 @@
         .favicon-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
 
         /* ── OG 미리보기 ── */
-        .og-preview {
-            border: 1.5px solid #ebebeb;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-top: 16px;
-        }
+        .og-preview { border: 1.5px solid #ebebeb; border-radius: 12px; overflow: hidden; margin-top: 16px; }
         .og-bar { height: 5px; background: linear-gradient(90deg,#4f8ef7,#a259f7); }
         .og-body { padding: 14px 16px; display: flex; gap: 14px; align-items: center; background: #fafafa; }
         .og-thumb {
@@ -203,8 +140,8 @@
         }
         .og-thumb img { width: 100%; height: 100%; object-fit: cover; }
         .og-domain { font-size: 11px; color: #aaa; margin-bottom: 3px; }
-        .og-title { font-size: 13px; font-weight: 700; color: #111; line-height: 1.4; }
-        .og-desc { font-size: 12px; color: #888; margin-top: 3px; line-height: 1.4; }
+        .og-title-prev { font-size: 13px; font-weight: 700; color: #111; line-height: 1.4; }
+        .og-desc-prev { font-size: 12px; color: #888; margin-top: 3px; line-height: 1.4; }
 
         /* ── SNS ── */
         .sns-item {
@@ -244,6 +181,42 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         .toggle-btn.on::after { left: 21px; }
+
+        /* ── SNS 미리보기 ── */
+        .sns-preview-wrap {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1.5px solid #f0f0f0;
+        }
+        .sns-preview-label {
+            font-size: 11px; font-weight: 700; color: #bbb;
+            text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 14px;
+        }
+        .sns-preview-box {
+            background: #2d2d2d;
+            border-radius: 14px;
+            padding: 24px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .sns-preview-name {
+            color: white; font-size: 15px; font-weight: 700;
+        }
+        .sns-preview-sub {
+            color: rgba(255,255,255,0.55); font-size: 12px; margin-bottom: 4px;
+        }
+        .sns-preview-icons {
+            display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+        }
+        .sns-preview-icon {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(255,255,255,0.13);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white; overflow: hidden;
+        }
+        .sns-preview-icon img { width: 100%; height: 100%; object-fit: cover; }
 
         /* ── 링크 ── */
         .link-item {
@@ -343,7 +316,7 @@
         </div>
         <div class="nav-divider"></div>
         <div class="nav-item" onclick="switchTab('tab-sns')" data-tab="tab-sns">
-            <span class="nav-icon">📱</span> SNS
+            <span class="nav-icon">📱</span> SNS 아이콘
         </div>
         <div class="nav-item" onclick="switchTab('tab-links')" data-tab="tab-links">
             <span class="nav-icon">🔗</span> 링크 버튼
@@ -352,7 +325,7 @@
 
     <div class="main-panel">
 
-        <!-- 사이트 -->
+        <!-- 1. 사이트 -->
         <div class="tab-panel active" id="tab-site">
             <div class="panel-title">🌐 사이트 기본 설정</div>
             <div class="panel-desc">탭 이름, 파비콘, SNS 공유 미리보기를 설정합니다.</div>
@@ -372,7 +345,11 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-title">공유 미리보기 (카카오톡 · SNS)</div>
+                <div class="card-title">공유 미리보기 (카카오톡 · SNS) — 선택사항</div>
+                <div style="font-size:12px;color:#f0a500;background:#fffbee;border:1px solid #ffe58f;border-radius:8px;padding:10px 12px;margin-bottom:14px;">
+                    ⚠️ Supabase 테이블에 <b>og_title</b>, <b>og_description</b> 컬럼을 추가해야 저장됩니다.<br>
+                    추가하지 않으면 이 항목은 저장 시 자동으로 건너뜁니다.
+                </div>
                 <div class="input-group">
                     <span class="input-label">공유 제목</span>
                     <input type="text" id="og-title" placeholder="예: 밖비타 공식 링크 모음" oninput="updateOgPreview()">
@@ -387,15 +364,15 @@
                         <div class="og-thumb" id="og-thumb">🌐</div>
                         <div>
                             <div class="og-domain">링크허브.com</div>
-                            <div class="og-title" id="og-prev-title">공유 제목이 여기에 표시됩니다</div>
-                            <div class="og-desc" id="og-prev-desc">공유 설명이 여기에 표시됩니다</div>
+                            <div class="og-title-prev" id="og-prev-title">공유 제목이 여기에 표시됩니다</div>
+                            <div class="og-desc-prev" id="og-prev-desc">공유 설명이 여기에 표시됩니다</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 로딩 -->
+        <!-- 2. 로딩 -->
         <div class="tab-panel" id="tab-loading">
             <div class="panel-title">⏳ 로딩 화면 설정</div>
             <div class="panel-desc">사이트 접속 시 처음 보이는 로딩 화면을 설정합니다.</div>
@@ -419,7 +396,7 @@
             </div>
         </div>
 
-        <!-- 프로필 -->
+        <!-- 3. 프로필 -->
         <div class="tab-panel" id="tab-profile">
             <div class="panel-title">🖼️ 프로필 이미지</div>
             <div class="panel-desc">메인 페이지 상단에 표시되는 프로필 이미지입니다.</div>
@@ -435,7 +412,7 @@
             </div>
         </div>
 
-        <!-- 텍스트 -->
+        <!-- 4. 텍스트 -->
         <div class="tab-panel" id="tab-text">
             <div class="panel-title">✏️ 텍스트</div>
             <div class="panel-desc">메인 페이지에 표시되는 제목과 부제목입니다.</div>
@@ -451,7 +428,7 @@
             </div>
         </div>
 
-        <!-- 색상 -->
+        <!-- 5. 색상 -->
         <div class="tab-panel" id="tab-color">
             <div class="panel-title">🎨 색상</div>
             <div class="panel-desc">메인 페이지의 배경색과 링크 버튼 색상을 설정합니다.</div>
@@ -463,16 +440,27 @@
             </div>
         </div>
 
-        <!-- SNS -->
+        <!-- 6. SNS -->
         <div class="tab-panel" id="tab-sns">
             <div class="panel-title">📱 SNS 아이콘</div>
-            <div class="panel-desc">토글로 켜면 부제목 아래에 아이콘이 표시됩니다. 아이콘을 클릭하면 커스텀 이미지로 교체할 수 있습니다.</div>
+            <div class="panel-desc">토글로 켜면 부제목 아래에 원형 아이콘이 표시됩니다. 아이콘을 클릭하면 커스텀 이미지로 교체 가능합니다.</div>
             <div class="card">
+                <div class="card-title">아이콘 설정</div>
                 <div id="sns-container"></div>
+
+                <!-- 실시간 미리보기 -->
+                <div class="sns-preview-wrap">
+                    <div class="sns-preview-label">미리보기</div>
+                    <div class="sns-preview-box" id="sns-preview-box">
+                        <div class="sns-preview-name" id="sns-prev-name">밖비타</div>
+                        <div class="sns-preview-sub" id="sns-prev-sub">크리에이터</div>
+                        <div class="sns-preview-icons" id="sns-prev-icons"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 링크 -->
+        <!-- 7. 링크 -->
         <div class="tab-panel" id="tab-links">
             <div class="panel-title">🔗 링크 버튼</div>
             <div class="panel-desc">⠿ 핸들을 드래그해서 순서를 바꿀 수 있습니다.</div>
@@ -506,7 +494,10 @@ let snsItems = SNS_DEFS.map(d => ({ ...d, url:'', enabled:false, imgUrl:null, im
 let profileUrl=null, profileFname=null;
 let faviconUrl=null, faviconFname=null;
 let dragSrcIdx = null;
+// og 컬럼 존재 여부 (DB 조회 결과로 판단)
+let hasOgColumns = false;
 
+// ── 탭 전환 ──────────────────────────────────
 function switchTab(tabId) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -515,6 +506,7 @@ function switchTab(tabId) {
     document.querySelector('.main-panel').scrollTop = 0;
 }
 
+// ── OG 미리보기 ──────────────────────────────
 function updateOgPreview() {
     const t = document.getElementById('og-title').value;
     const d = document.getElementById('og-description').value;
@@ -522,6 +514,32 @@ function updateOgPreview() {
     document.getElementById('og-prev-desc').innerText  = d || '공유 설명이 여기에 표시됩니다';
 }
 
+// ── SNS 미리보기 업데이트 ─────────────────────
+function updateSnsPreview() {
+    const iconsEl = document.getElementById('sns-prev-icons');
+    iconsEl.innerHTML = '';
+    // 텍스트 미리보기 동기화
+    const title = document.getElementById('p-title') ? document.getElementById('p-title').value : '';
+    const sub   = document.getElementById('p-sub')   ? document.getElementById('p-sub').value   : '';
+    if (title) document.getElementById('sns-prev-name').innerText = title;
+    if (sub)   document.getElementById('sns-prev-sub').innerText  = sub;
+
+    const enabled = snsItems.filter(s => s.enabled);
+    if (enabled.length === 0) {
+        iconsEl.innerHTML = '<span style="font-size:12px;color:rgba(255,255,255,0.3);">켜진 SNS 없음</span>';
+        return;
+    }
+    enabled.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'sns-preview-icon';
+        div.innerHTML = s.imgUrl
+            ? `<img src="${s.imgUrl}" alt="${s.label}">`
+            : `<i class="${s.icon}" style="color:${s.color}"></i>`;
+        iconsEl.appendChild(div);
+    });
+}
+
+// ── 유틸 ────────────────────────────────────
 function toast(msg, ms=2500) {
     const el = document.getElementById('toast');
     el.innerText = msg; el.classList.add('show');
@@ -538,6 +556,7 @@ async function upload(file, prefix) {
     return sb.storage.from('profiles').getPublicUrl(name).data.publicUrl;
 }
 
+// ── 파비콘 ──────────────────────────────────
 async function onFaviconPick(input) {
     const f = input.files[0]; if (!f) return;
     const b64 = await toBase64(f);
@@ -545,6 +564,7 @@ async function onFaviconPick(input) {
     document.getElementById('favicon-fname').innerText = f.name;
 }
 
+// ── 프로필 ──────────────────────────────────
 function onProfilePick(input) {
     const f = input.files[0]; if (!f) return;
     const r = new FileReader();
@@ -556,6 +576,7 @@ function onProfilePick(input) {
     r.readAsDataURL(f);
 }
 
+// ── SNS 렌더 ────────────────────────────────
 function renderSns() {
     const c = document.getElementById('sns-container');
     c.innerHTML = '';
@@ -577,6 +598,7 @@ function renderSns() {
         `;
         c.appendChild(div);
     });
+    updateSnsPreview();
 }
 
 async function onSnsImg(i,input) {
@@ -587,6 +609,7 @@ async function onSnsImg(i,input) {
     renderSns();
 }
 
+// ── 링크 렌더 ────────────────────────────────
 function renderLinks() {
     const c = document.getElementById('links-container');
     c.innerHTML = '';
@@ -669,15 +692,21 @@ async function onLinkImg(i,input) {
     renderLinks();
 }
 
+// ── 불러오기 ────────────────────────────────
 async function loadData() {
     try {
         const { data, error } = await sb.from('link_settings').select('*').eq('id',1).single();
         if (error) throw error;
         if (!data) return;
 
+        // og 컬럼 존재 여부 확인
+        hasOgColumns = ('og_title' in data);
+
         document.getElementById('site-title').value = data.site_title||'';
-        document.getElementById('og-title').value = data.og_title||'';
-        document.getElementById('og-description').value = data.og_description||'';
+        if (hasOgColumns) {
+            document.getElementById('og-title').value = data.og_title||'';
+            document.getElementById('og-description').value = data.og_description||'';
+        }
         document.getElementById('loading-title').value = data.loading_title||'Bagbeetar';
         document.getElementById('loading-desc').value = data.loading_desc||'';
         document.getElementById('loading-bg').value = data.loading_bg||'#000000';
@@ -698,11 +727,17 @@ async function loadData() {
 
         if (Array.isArray(data.sns_items)) snsItems=data.sns_items.map(s=>({...s,_file:null}));
         links=(data.links||[]).map(l=>({...l,_file:null}));
+
+        // 미리보기 초기값
+        if (data.title) document.getElementById('sns-prev-name').innerText = data.title;
+        if (data.subtitle) document.getElementById('sns-prev-sub').innerText = data.subtitle;
+
         updateOgPreview();
     } catch(e) { console.error(e); toast('❌ 데이터 로드 실패'); }
     renderSns(); renderLinks();
 }
 
+// ── 저장 ────────────────────────────────────
 async function handleSave() {
     const btn = document.getElementById('save-btn');
     btn.disabled=true; btn.innerText='저장 중...';
@@ -741,31 +776,36 @@ async function handleSave() {
             linkSave.push(obj);
         }
 
-        const payload={
-            id:1,
-            site_title:document.getElementById('site-title').value,
-            og_title:document.getElementById('og-title').value,
-            og_description:document.getElementById('og-description').value,
-            loading_title:document.getElementById('loading-title').value,
-            loading_desc:document.getElementById('loading-desc').value,
-            loading_bg:document.getElementById('loading-bg').value,
-            loading_text_color:document.getElementById('loading-text').value,
-            title:document.getElementById('p-title').value,
-            subtitle:document.getElementById('p-sub').value,
-            bg_color:document.getElementById('p-bg').value,
-            btn_color:document.getElementById('p-btn').value,
-            profile_img_url:pUrl, profile_file_name:pName,
-            favicon_url:fUrl, favicon_file_name:fName,
-            sns_items:snsSave, links:linkSave,
+        // 기본 payload (og 컬럼 제외)
+        const payload = {
+            id: 1,
+            site_title: document.getElementById('site-title').value,
+            loading_title: document.getElementById('loading-title').value,
+            loading_desc: document.getElementById('loading-desc').value,
+            loading_bg: document.getElementById('loading-bg').value,
+            loading_text_color: document.getElementById('loading-text').value,
+            title: document.getElementById('p-title').value,
+            subtitle: document.getElementById('p-sub').value,
+            bg_color: document.getElementById('p-bg').value,
+            btn_color: document.getElementById('p-btn').value,
+            profile_img_url: pUrl, profile_file_name: pName,
+            favicon_url: fUrl, favicon_file_name: fName,
+            sns_items: snsSave, links: linkSave,
         };
 
-        let { error }=await sb.from('link_settings').update(payload).eq('id',1);
+        // og 컬럼이 있을 때만 포함
+        if (hasOgColumns) {
+            payload.og_title = document.getElementById('og-title').value;
+            payload.og_description = document.getElementById('og-description').value;
+        }
+
+        let { error } = await sb.from('link_settings').update(payload).eq('id', 1);
         if (error) {
-            const ins=await sb.from('link_settings').insert(payload);
+            const ins = await sb.from('link_settings').insert(payload);
             if (ins.error) throw new Error(ins.error.message||JSON.stringify(ins.error));
         }
 
-        const { data:verify, error:verifyErr }=await sb.from('link_settings').select('id,title,links').eq('id',1).single();
+        const { data:verify, error:verifyErr } = await sb.from('link_settings').select('id,title,links').eq('id',1).single();
         if (verifyErr) throw new Error('저장 확인 실패: '+verifyErr.message);
 
         profileUrl=pUrl; profileFname=pName;
