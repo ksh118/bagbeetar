@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Loading...</title>
+    <title>Link Hub</title>
     <meta id="og-title" property="og:title" content="">
     <meta id="og-description" property="og:description" content="">
     <meta id="og-image" property="og:image" content="">
@@ -13,6 +13,13 @@
     <meta id="twitter-image" name="twitter:image" content="">
     <meta name="twitter:card" content="summary">
     <link id="favicon-link" rel="icon" href="">
+    <script>
+        // 저장된 제목 있으면 즉시 적용 (JS 로딩 전에)
+        try {
+            const t = localStorage.getItem('site_title');
+            if (t) document.title = t;
+        } catch(e) {}
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -228,6 +235,7 @@ async function init() {
         const siteDesc = data.subtitle || '';
         const siteImg = data.profile_img_url || '';
         document.title = siteTitle;
+        try { localStorage.setItem('site_title', siteTitle); } catch(e) {}
         document.getElementById('og-title').content = siteTitle;
         document.getElementById('og-description').content = siteDesc;
         document.getElementById('og-image').content = siteImg;
