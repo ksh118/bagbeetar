@@ -2,52 +2,50 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Codet Base | Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Pretendard', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .admin-card { background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        body { font-family: 'Pretendard', sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
+        .admin-card { background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .group { margin-bottom: 20px; }
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
-        input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
         .color-row { display: flex; gap: 10px; }
-        .btn-save { width: 100%; padding: 15px; background: #007AFF; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        .link-item { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; }
+        .link-item { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #eee; position: relative; }
+        .remove-btn { position: absolute; top: 10px; right: 10px; color: red; cursor: pointer; }
+        .add-btn { width: 100%; padding: 10px; background: #eee; border: 2px dashed #ccc; border-radius: 10px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
+        .btn-save { width: 100%; padding: 16px; background: #000; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="admin-card">
-    <h2 style="margin-bottom:20px;">⚙️ 페이지 편집</h2>
+    <h2>⚙️ 관리자 설정</h2>
     
     <div class="group">
-        <label>프로필 이미지 업로드 (1:1 권장)</label>
+        <label>1. 프로필 이미지 업로드</label>
         <input type="file" id="file-input" accept="image/*">
     </div>
 
     <div class="group">
-        <label>제목</label>
-        <input type="text" id="p-title">
+        <label>2. 텍스트 설정</label>
+        <input type="text" id="p-title" placeholder="제목을 입력하세요">
+        <input type="text" id="p-sub" placeholder="부제목을 입력하세요" style="margin-top:5px;">
     </div>
 
     <div class="group">
-        <label>부제목</label>
-        <input type="text" id="p-sub">
-    </div>
-
-    <div class="color-row">
-        <div class="group" style="flex:1">
-            <label>배경색</label>
-            <input type="color" id="p-bg" style="width:100%; height:40px;">
-        </div>
-        <div class="group" style="flex:1">
-            <label>버튼색</label>
-            <input type="color" id="p-btn" style="width:100%; height:40px;">
+        <label>3. 색상 설정</label>
+        <div class="color-row">
+            <div style="flex:1"><small>배경</small><input type="color" id="p-bg" value="#4a4a00"></div>
+            <div style="flex:1"><small>버튼</small><input type="color" id="p-btn" value="#000000"></div>
         </div>
     </div>
 
-    <div id="links-area"></div>
+    <label>4. 링크 관리</label>
+    <div id="links-container"></div>
+    <button class="add-btn" onclick="addLinkField()">+ 링크 추가하기</button>
+
     <button class="btn-save" onclick="handleSave()">서버에 저장하기</button>
 </div>
 
@@ -56,47 +54,66 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZXh1YXB5d2t5c2RldHFvbG15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4ODc5NzMsImV4cCI6MjA5MTQ2Mzk3M30.gLDMHhO7U_KRlMjx4d7sQU6oNoAvGeNoYHJ_q8fpxKk";
     const supabase = supabase.createClient(SB_URL, SB_KEY);
 
-    let linksData = [
-        { icon: "fab fa-youtube", text: "유튜브", url: "#" },
-        { icon: "fab fa-discord", text: "디스코드", url: "#" }
-    ];
+    let links = [];
+
+    // 기존 데이터 불러오기
+    async function loadData() {
+        const { data } = await supabase.from('link_settings').select('*').eq('id', 1).single();
+        if (data) {
+            document.getElementById('p-title').value = data.title;
+            document.getElementById('p-sub').value = data.subtitle;
+            document.getElementById('p-bg').value = data.bg_color;
+            document.getElementById('p-btn').value = data.btn_color;
+            links = data.links || [];
+            renderLinks();
+        }
+    }
+
+    function renderLinks() {
+        const container = document.getElementById('links-container');
+        container.innerHTML = '';
+        links.forEach((l, i) => {
+            container.innerHTML += `
+                <div class="link-item">
+                    <span class="remove-btn" onclick="removeLink(${i})">✖</span>
+                    <input type="text" placeholder="아이콘(예: fab fa-youtube)" value="${l.icon}" onchange="updateLink(${i}, 'icon', this.value)" style="margin-bottom:5px">
+                    <input type="text" placeholder="링크 텍스트" value="${l.text}" onchange="updateLink(${i}, 'text', this.value)" style="margin-bottom:5px">
+                    <input type="text" placeholder="URL" value="${l.url}" onchange="updateLink(${i}, 'url', this.value)">
+                </div>`;
+        });
+    }
+
+    function addLinkField() { links.push({icon:'', text:'', url:''}); renderLinks(); }
+    function removeLink(i) { links.splice(i, 1); renderLinks(); }
+    function updateLink(i, f, v) { links[i][f] = v; }
 
     async function handleSave() {
         const file = document.getElementById('file-input').files[0];
-        let imageUrl = "";
+        let imageUrl = null;
 
-        // 1. 이미지 업로드 처리
         if (file) {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const { data, error: uploadError } = await supabase.storage
-                .from('profiles')
-                .upload(fileName, file);
-            
-            if (uploadError) return alert("이미지 업로드 실패: " + uploadError.message);
-            
-            const { data: publicUrlData } = supabase.storage.from('profiles').getPublicUrl(fileName);
-            imageUrl = publicUrlData.publicUrl;
+            const fileName = `profile_${Date.now()}.png`;
+            const { data: uploadData, error: uploadError } = await supabase.storage.from('profiles').upload(fileName, file);
+            if (uploadError) return alert("이미지 업로드 오류");
+            const { data } = supabase.storage.from('profiles').getPublicUrl(fileName);
+            imageUrl = data.publicUrl;
         }
 
-        // 2. DB 업데이트
-        const updateData = {
+        const saveData = {
             id: 1,
             title: document.getElementById('p-title').value,
             subtitle: document.getElementById('p-sub').value,
             bg_color: document.getElementById('p-bg').value,
             btn_color: document.getElementById('p-btn').value,
-            links: linksData
+            links: links
         };
+        if (imageUrl) saveData.profile_img_url = imageUrl;
 
-        if (imageUrl) updateData.profile_img_url = imageUrl;
-
-        const { error } = await supabase.from('link_settings').upsert([updateData]);
-        if (error) alert("저장 실패: " + error.message);
-        else alert("저장 완료!");
+        const { error } = await supabase.from('link_settings').upsert(saveData);
+        if (error) alert("저장 실패"); else alert("저장 성공!");
     }
 
-    // 링크 입력 필드 생성 (생략 가능, 위 코드와 동일 방식)
+    loadData();
 </script>
 </body>
 </html>
