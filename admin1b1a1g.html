@@ -360,23 +360,90 @@ function renderLinks() {
         div.className='link-item';
         div.draggable=true;
         div.dataset.idx=i;
-        div.innerHTML=`
-            <div class="drag-handle" title="드래그해서 순서 변경">⠿</div>
-            <div class="link-body">
-                <div class="link-top">
-                    <div class="link-img-btn" onclick="document.getElementById('link-f${i}').click()">
-                        ${l.imgUrl?`<img src="${l.imgUrl}"><div class="link-img-overlay">📷</div>`:`<span class="plus">+</span>`}
-                    </div>
-                    <input type="file" id="link-f${i}" accept="image/*" style="display:none" onchange="onLinkImg(${i},this)">
-                    <span class="link-num">링크 ${i+1}</span>
-                    <button class="remove-btn" onclick="links.splice(${i},1); renderLinks()">✖</button>
-                </div>
-                ${l.imgName?`<div class="img-name">📎 ${l.imgName}</div>`:''}
-                <input type="text" placeholder="버튼 텍스트" value="${l.text||''}" oninput="links[${i}].text=this.value">
-                <input type="url" placeholder="URL (https://...)" value="${l.url||''}" oninput="links[${i}].url=this.value">
-                <input type="text" placeholder="설명 (선택, 버튼 아래 작은 글씨로 표시)" value="${l.desc||''}" oninput="links[${i}].desc=this.value">
-            </div>
-        `;
+
+        // 구조 생성
+        const handle = document.createElement('div');
+        handle.className = 'drag-handle';
+        handle.title = '드래그해서 순서 변경';
+        handle.textContent = '⠿';
+
+        const body = document.createElement('div');
+        body.className = 'link-body';
+
+        // 상단: 이미지버튼 + 번호 + 삭제
+        const top = document.createElement('div');
+        top.className = 'link-top';
+
+        const imgBtn = document.createElement('div');
+        imgBtn.className = 'link-img-btn';
+        if(l.imgUrl){
+            imgBtn.innerHTML = `<img src="${l.imgUrl}"><div class="link-img-overlay">📷</div>`;
+        } else {
+            imgBtn.innerHTML = `<span class="plus">+</span>`;
+        }
+
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = `link-f${i}`;
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        fileInput.addEventListener('change', function(){ onLinkImg(i, this); });
+        imgBtn.addEventListener('click', ()=> fileInput.click());
+
+        const num = document.createElement('span');
+        num.className = 'link-num';
+        num.textContent = `링크 ${i+1}`;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-btn';
+        removeBtn.textContent = '✖';
+        removeBtn.addEventListener('click', ()=>{ links.splice(i,1); renderLinks(); });
+
+        top.appendChild(imgBtn);
+        top.appendChild(fileInput);
+        top.appendChild(num);
+        top.appendChild(removeBtn);
+
+        // 이미지 파일명
+        if(l.imgName){
+            const imgName = document.createElement('div');
+            imgName.className = 'img-name';
+            imgName.textContent = '📎 ' + l.imgName;
+            body.appendChild(top);
+            body.appendChild(imgName);
+        } else {
+            body.appendChild(top);
+        }
+
+        // 텍스트 입력 - addEventListener로 안정적으로 처리
+        const txtInput = document.createElement('input');
+        txtInput.type = 'text';
+        txtInput.placeholder = '버튼 텍스트';
+        txtInput.value = l.text || '';
+        txtInput.addEventListener('input', function(){ links[i].text = this.value; });
+        txtInput.addEventListener('change', function(){ links[i].text = this.value; });
+
+        const urlInput = document.createElement('input');
+        urlInput.type = 'url';
+        urlInput.placeholder = 'URL (https://...)';
+        urlInput.value = l.url || '';
+        urlInput.addEventListener('input', function(){ links[i].url = this.value; });
+        urlInput.addEventListener('change', function(){ links[i].url = this.value; });
+
+        const descInput = document.createElement('input');
+        descInput.type = 'text';
+        descInput.placeholder = '설명 (선택, 버튼 아래 작은 글씨로 표시)';
+        descInput.value = l.desc || '';
+        descInput.addEventListener('input', function(){ links[i].desc = this.value; });
+        descInput.addEventListener('change', function(){ links[i].desc = this.value; });
+
+        body.appendChild(txtInput);
+        body.appendChild(urlInput);
+        body.appendChild(descInput);
+
+        div.appendChild(handle);
+        div.appendChild(body);
+
         // 드래그 이벤트
         div.addEventListener('dragstart', e=>{ dragSrcIdx=i; e.dataTransfer.effectAllowed='move'; setTimeout(()=>div.classList.add('dragging'),0); });
         div.addEventListener('dragend', ()=>{ div.classList.remove('dragging'); document.querySelectorAll('.link-item').forEach(el=>el.classList.remove('drag-over')); });
@@ -452,6 +519,17 @@ async function handleSave() {
             if(s._file){ toast(`⏳ SNS 이미지 (${i+1}/${snsItems.length})...`); obj.imgUrl=await upload(s._file,`sns_${s.key}`); obj.imgName=s._file.name; }
             snsSave.push(obj);
         }
+
+        // 저장 직전 DOM에서 최신값 강제 동기화
+        document.querySelectorAll('#links-container .link-item').forEach((div, i) => {
+            if (!links[i]) return;
+            const inputs = div.querySelectorAll('input[type="text"], input[type="url"]');
+            // text, url, desc 순서로 input이 배치됨
+            if (inputs[0]) links[i].text = inputs[0].value;
+            if (inputs[1]) links[i].url  = inputs[1].value;
+            if (inputs[2]) links[i].desc = inputs[2].value;
+        });
+        console.log('저장 직전 links:', JSON.stringify(links.map(l=>({text:l.text,url:l.url}))));
 
         // 링크
         const linkSave=[];
