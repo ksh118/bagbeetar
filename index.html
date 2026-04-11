@@ -57,7 +57,7 @@
         #main-content.visible { opacity: 1; }
 
         .wrap {
-            width: 100%; max-width: 480px;
+            width: 100%; max-width: 600px;
             padding: 60px 20px 80px; text-align: center;
         }
         .profile {
@@ -83,23 +83,24 @@
         /* 링크 버튼 */
         .btn {
             display: flex; align-items: center;
-            border-radius: 16px; text-decoration: none;
-            margin-bottom: 14px; font-weight: 600;
+            border-radius: 14px; text-decoration: none;
+            margin-bottom: 12px; font-weight: 600;
             transition: transform 0.15s, opacity 0.15s;
-            overflow: hidden; min-height: 76px;
+            overflow: hidden; min-height: 58px;
+            width: 100%;
         }
         .btn:hover { transform: scale(1.02); opacity: 0.9; }
         /* 이미지 있는 버튼 */
         .btn-img-wrap {
-            width: 76px; height: 76px; flex-shrink: 0; overflow: hidden;
+            width: 58px; height: 58px; flex-shrink: 0; overflow: hidden;
         }
         .btn-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
-        .btn-spacer { width: 76px; flex-shrink: 0; } /* 반대쪽 균형용 */
+        .btn-spacer { width: 58px; flex-shrink: 0; }
         /* 이미지 없는 버튼 */
-        .btn-plain { padding: 22px 24px; justify-content: center; }
-        .btn-center { flex: 1; padding: 14px 18px; text-align: center; }
-        .btn-label { font-size: 17px; line-height: 1.3; }
-        .btn-desc { font-size: 13px; opacity: 0.6; margin-top: 4px; }
+        .btn-plain { padding: 16px 24px; justify-content: center; }
+        .btn-center { flex: 1; padding: 10px 16px; text-align: center; }
+        .btn-label { font-size: 15px; line-height: 1.3; }
+        .btn-desc { font-size: 11px; opacity: 0.6; margin-top: 3px; }
     </style>
 </head>
 <body>
