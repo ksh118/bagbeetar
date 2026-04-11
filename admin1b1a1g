@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codet Base | Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .admin-card { background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+        input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; }
+        .color-row { display: flex; gap: 10px; }
+        .btn-save { width: 100%; padding: 15px; background: #007AFF; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .link-item { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; }
+    </style>
+</head>
+<body>
+
+<div class="admin-card">
+    <h2 style="margin-bottom:20px;">⚙️ 페이지 편집</h2>
+    
+    <div class="group">
+        <label>프로필 이미지 업로드 (1:1 권장)</label>
+        <input type="file" id="file-input" accept="image/*">
+    </div>
+
+    <div class="group">
+        <label>제목</label>
+        <input type="text" id="p-title">
+    </div>
+
+    <div class="group">
+        <label>부제목</label>
+        <input type="text" id="p-sub">
+    </div>
+
+    <div class="color-row">
+        <div class="group" style="flex:1">
+            <label>배경색</label>
+            <input type="color" id="p-bg" style="width:100%; height:40px;">
+        </div>
+        <div class="group" style="flex:1">
+            <label>버튼색</label>
+            <input type="color" id="p-btn" style="width:100%; height:40px;">
+        </div>
+    </div>
+
+    <div id="links-area"></div>
+    <button class="btn-save" onclick="handleSave()">서버에 저장하기</button>
+</div>
+
+<script>
+    const SB_URL = "https://teexuapywkysdetqolmy.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZXh1YXB5d2t5c2RldHFvbG15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4ODc5NzMsImV4cCI6MjA5MTQ2Mzk3M30.gLDMHhO7U_KRlMjx4d7sQU6oNoAvGeNoYHJ_q8fpxKk";
+    const supabase = supabase.createClient(SB_URL, SB_KEY);
+
+    let linksData = [
+        { icon: "fab fa-youtube", text: "유튜브", url: "#" },
+        { icon: "fab fa-discord", text: "디스코드", url: "#" }
+    ];
+
+    async function handleSave() {
+        const file = document.getElementById('file-input').files[0];
+        let imageUrl = "";
+
+        // 1. 이미지 업로드 처리
+        if (file) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const { data, error: uploadError } = await supabase.storage
+                .from('profiles')
+                .upload(fileName, file);
+            
+            if (uploadError) return alert("이미지 업로드 실패: " + uploadError.message);
+            
+            const { data: publicUrlData } = supabase.storage.from('profiles').getPublicUrl(fileName);
+            imageUrl = publicUrlData.publicUrl;
+        }
+
+        // 2. DB 업데이트
+        const updateData = {
+            id: 1,
+            title: document.getElementById('p-title').value,
+            subtitle: document.getElementById('p-sub').value,
+            bg_color: document.getElementById('p-bg').value,
+            btn_color: document.getElementById('p-btn').value,
+            links: linksData
+        };
+
+        if (imageUrl) updateData.profile_img_url = imageUrl;
+
+        const { error } = await supabase.from('link_settings').upsert([updateData]);
+        if (error) alert("저장 실패: " + error.message);
+        else alert("저장 완료!");
+    }
+
+    // 링크 입력 필드 생성 (생략 가능, 위 코드와 동일 방식)
+</script>
+</body>
+</html>
