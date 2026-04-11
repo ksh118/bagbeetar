@@ -232,15 +232,16 @@ async function init() {
 
         // 사이트 제목 + OG 태그
         const siteTitle = data.site_title || data.title || 'Link Hub';
-        const siteDesc = data.subtitle || '';
+        const ogTitle = data.og_title || siteTitle;
+        const ogDesc = data.og_description || data.subtitle || '';
         const siteImg = data.profile_img_url || '';
         document.title = siteTitle;
         try { localStorage.setItem('site_title', siteTitle); } catch(e) {}
-        document.getElementById('og-title').content = siteTitle;
-        document.getElementById('og-description').content = siteDesc;
+        document.getElementById('og-title').content = ogTitle;
+        document.getElementById('og-description').content = ogDesc;
         document.getElementById('og-image').content = siteImg;
-        document.getElementById('twitter-title').content = siteTitle;
-        document.getElementById('twitter-description').content = siteDesc;
+        document.getElementById('twitter-title').content = ogTitle;
+        document.getElementById('twitter-description').content = ogDesc;
         document.getElementById('twitter-image').content = siteImg;
 
         // 배경
