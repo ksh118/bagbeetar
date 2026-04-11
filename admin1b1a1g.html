@@ -444,7 +444,9 @@ async function handleSave() {
         // SNS
         const snsSave=[];
         for(const [i,s] of snsItems.entries()){
-            const obj={key:s.key,label:s.label,icon:s.icon,color:s.color,url:s.url,enabled:s.enabled,imgUrl:s.imgUrl,imgName:s.imgName};
+            let snsUrl = s.url || '';
+            if(snsUrl && !/^https?:\/\//i.test(snsUrl)) snsUrl = 'https://' + snsUrl;
+            const obj={key:s.key,label:s.label,icon:s.icon,color:s.color,url:snsUrl,enabled:s.enabled,imgUrl:s.imgUrl,imgName:s.imgName};
             if(s._file){ toast(`⏳ SNS 이미지 (${i+1}/${snsItems.length})...`); obj.imgUrl=await upload(s._file,`sns_${s.key}`); obj.imgName=s._file.name; }
             snsSave.push(obj);
         }
@@ -452,7 +454,9 @@ async function handleSave() {
         // 링크
         const linkSave=[];
         for(const [i,l] of links.entries()){
-            const obj={text:l.text,url:l.url,desc:l.desc||'',imgUrl:l.imgUrl,imgName:l.imgName};
+            let linkUrl = l.url || '';
+            if(linkUrl && !/^https?:\/\//i.test(linkUrl)) linkUrl = 'https://' + linkUrl;
+            const obj={text:l.text,url:linkUrl,desc:l.desc||'',imgUrl:l.imgUrl,imgName:l.imgName};
             if(l._file){ toast(`⏳ 링크 이미지 (${i+1}/${links.length})...`); obj.imgUrl=await upload(l._file,`link${i}`); obj.imgName=l._file.name; }
             linkSave.push(obj);
         }
