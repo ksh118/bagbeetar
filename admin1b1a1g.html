@@ -2,70 +2,233 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Codet Base | Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Hub | Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Pretendard', sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
-        .admin-card { background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .admin-card {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        h2 { margin-bottom: 24px; font-size: 20px; }
         .group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus { border-color: #999; }
         .color-row { display: flex; gap: 10px; }
-        .link-item { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #eee; position: relative; }
-        .remove-btn { position: absolute; top: 10px; right: 10px; color: red; cursor: pointer; }
-        .add-btn { width: 100%; padding: 10px; background: #eee; border: 2px dashed #ccc; border-radius: 10px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
-        .btn-save { width: 100%; padding: 16px; background: #000; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .color-row > div {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .color-row small { font-size: 12px; color: #666; }
+        input[type="color"] {
+            width: 100%;
+            height: 44px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .link-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+            position: relative;
+        }
+        .link-item input {
+            margin-bottom: 8px;
+        }
+        .link-item input:last-child { margin-bottom: 0; }
+        .remove-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 16px;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        .remove-btn:hover { color: #cc0000; }
+        .add-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: background 0.2s;
+        }
+        .add-btn:hover { background: #e5e5e5; }
+        .btn-save {
+            width: 100%;
+            padding: 16px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-save:hover { background: #333; }
+        .btn-save:disabled { background: #999; cursor: not-allowed; }
+        .preview-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: none;
+            margin-top: 10px;
+            border: 2px solid #ddd;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
 
 <div class="admin-card">
     <h2>⚙️ 관리자 설정</h2>
-    
+
     <div class="group">
         <label>1. 프로필 이미지 업로드</label>
-        <input type="file" id="file-input" accept="image/*">
+        <input type="file" id="file-input" accept="image/*" onchange="previewImage(this)">
+        <img id="img-preview" class="preview-img" alt="미리보기">
     </div>
 
     <div class="group">
         <label>2. 텍스트 설정</label>
-        <input type="text" id="p-title" placeholder="제목을 입력하세요">
-        <input type="text" id="p-sub" placeholder="부제목을 입력하세요" style="margin-top:5px;">
+        <input type="text" id="p-title" placeholder="제목을 입력하세요" style="margin-bottom:8px">
+        <input type="text" id="p-sub" placeholder="부제목을 입력하세요">
     </div>
 
     <div class="group">
         <label>3. 색상 설정</label>
         <div class="color-row">
-            <div style="flex:1"><small>배경</small><input type="color" id="p-bg" value="#4a4a00"></div>
-            <div style="flex:1"><small>버튼</small><input type="color" id="p-btn" value="#000000"></div>
+            <div><small>배경색</small><input type="color" id="p-bg" value="#4a4a00"></div>
+            <div><small>버튼색</small><input type="color" id="p-btn" value="#000000"></div>
         </div>
     </div>
 
-    <label>4. 링크 관리</label>
+    <label style="display:block; font-weight:bold; font-size:14px; color:#333; margin-bottom:10px;">4. 링크 관리</label>
     <div id="links-container"></div>
     <button class="add-btn" onclick="addLinkField()">+ 링크 추가하기</button>
 
-    <button class="btn-save" onclick="handleSave()">서버에 저장하기</button>
+    <button class="btn-save" id="save-btn" onclick="handleSave()">서버에 저장하기</button>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
     const SB_URL = "https://teexuapywkysdetqolmy.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZXh1YXB5d2t5c2RldHFvbG15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4ODc5NzMsImV4cCI6MjA5MTQ2Mzk3M30.gLDMHhO7U_KRlMjx4d7sQU6oNoAvGeNoYHJ_q8fpxKk";
-    const supabase = supabase.createClient(SB_URL, SB_KEY);
+
+    // ✅ 수정: supabase 네임스페이스에서 createClient 꺼내서 사용
+    const { createClient } = supabase;
+    const sb = createClient(SB_URL, SB_KEY);
 
     let links = [];
+    let currentProfileUrl = null;
+
+    // 이미지 미리보기
+    function previewImage(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('img-preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // 토스트 메시지
+    function showToast(msg, duration = 2500) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), duration);
+    }
 
     // 기존 데이터 불러오기
     async function loadData() {
-        const { data } = await supabase.from('link_settings').select('*').eq('id', 1).single();
-        if (data) {
-            document.getElementById('p-title').value = data.title;
-            document.getElementById('p-sub').value = data.subtitle;
-            document.getElementById('p-bg').value = data.bg_color;
-            document.getElementById('p-btn').value = data.btn_color;
-            links = data.links || [];
-            renderLinks();
+        try {
+            const { data, error } = await sb
+                .from('link_settings')
+                .select('*')
+                .eq('id', 1)
+                .single();
+
+            if (error) throw error;
+
+            if (data) {
+                document.getElementById('p-title').value = data.title || '';
+                document.getElementById('p-sub').value = data.subtitle || '';
+                document.getElementById('p-bg').value = data.bg_color || '#4a4a00';
+                document.getElementById('p-btn').value = data.btn_color || '#000000';
+                currentProfileUrl = data.profile_img_url || null;
+                links = data.links || [];
+                renderLinks();
+            }
+        } catch (err) {
+            console.error('데이터 로드 실패:', err);
+            showToast('❌ 데이터 불러오기 실패. SQL을 먼저 실행해주세요.');
         }
     }
 
@@ -73,44 +236,90 @@
         const container = document.getElementById('links-container');
         container.innerHTML = '';
         links.forEach((l, i) => {
-            container.innerHTML += `
-                <div class="link-item">
-                    <span class="remove-btn" onclick="removeLink(${i})">✖</span>
-                    <input type="text" placeholder="아이콘(예: fab fa-youtube)" value="${l.icon}" onchange="updateLink(${i}, 'icon', this.value)" style="margin-bottom:5px">
-                    <input type="text" placeholder="링크 텍스트" value="${l.text}" onchange="updateLink(${i}, 'text', this.value)" style="margin-bottom:5px">
-                    <input type="text" placeholder="URL" value="${l.url}" onchange="updateLink(${i}, 'url', this.value)">
-                </div>`;
+            const div = document.createElement('div');
+            div.className = 'link-item';
+            div.innerHTML = `
+                <button class="remove-btn" onclick="removeLink(${i})" title="삭제">✖</button>
+                <input type="text" placeholder="아이콘 (예: fab fa-youtube, fas fa-link)" value="${l.icon || ''}"
+                    oninput="updateLink(${i}, 'icon', this.value)" style="margin-bottom:8px">
+                <input type="text" placeholder="버튼에 표시할 텍스트" value="${l.text || ''}"
+                    oninput="updateLink(${i}, 'text', this.value)" style="margin-bottom:8px">
+                <input type="text" placeholder="연결할 URL (https://...)" value="${l.url || ''}"
+                    oninput="updateLink(${i}, 'url', this.value)">
+            `;
+            container.appendChild(div);
         });
     }
 
-    function addLinkField() { links.push({icon:'', text:'', url:''}); renderLinks(); }
-    function removeLink(i) { links.splice(i, 1); renderLinks(); }
-    function updateLink(i, f, v) { links[i][f] = v; }
+    function addLinkField() {
+        links.push({ icon: 'fas fa-link', text: '', url: '' });
+        renderLinks();
+        // 새로 추가된 항목으로 스크롤
+        const container = document.getElementById('links-container');
+        container.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function removeLink(i) {
+        links.splice(i, 1);
+        renderLinks();
+    }
+
+    function updateLink(i, field, value) {
+        links[i][field] = value;
+    }
 
     async function handleSave() {
-        const file = document.getElementById('file-input').files[0];
-        let imageUrl = null;
+        const saveBtn = document.getElementById('save-btn');
+        saveBtn.disabled = true;
+        saveBtn.innerText = '저장 중...';
 
-        if (file) {
-            const fileName = `profile_${Date.now()}.png`;
-            const { data: uploadData, error: uploadError } = await supabase.storage.from('profiles').upload(fileName, file);
-            if (uploadError) return alert("이미지 업로드 오류");
-            const { data } = supabase.storage.from('profiles').getPublicUrl(fileName);
-            imageUrl = data.publicUrl;
+        try {
+            const file = document.getElementById('file-input').files[0];
+            let imageUrl = currentProfileUrl; // 기존 URL 유지
+
+            // 새 이미지가 선택된 경우 업로드
+            if (file) {
+                const fileName = `profile_${Date.now()}.png`;
+                const { data: uploadData, error: uploadError } = await sb.storage
+                    .from('profiles')
+                    .upload(fileName, file, { upsert: true });
+
+                if (uploadError) {
+                    console.error('업로드 오류:', uploadError);
+                    showToast('❌ 이미지 업로드 실패: ' + uploadError.message);
+                    return;
+                }
+
+                const { data: urlData } = sb.storage.from('profiles').getPublicUrl(fileName);
+                imageUrl = urlData.publicUrl;
+            }
+
+            const saveData = {
+                id: 1,
+                title: document.getElementById('p-title').value,
+                subtitle: document.getElementById('p-sub').value,
+                bg_color: document.getElementById('p-bg').value,
+                btn_color: document.getElementById('p-btn').value,
+                links: links
+            };
+            if (imageUrl) saveData.profile_img_url = imageUrl;
+
+            const { error } = await sb.from('link_settings').upsert(saveData);
+
+            if (error) {
+                console.error('저장 오류:', error);
+                showToast('❌ 저장 실패: ' + error.message);
+            } else {
+                showToast('✅ 저장 완료!');
+                currentProfileUrl = imageUrl;
+            }
+        } catch (err) {
+            console.error('예외 발생:', err);
+            showToast('❌ 오류가 발생했습니다.');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerText = '서버에 저장하기';
         }
-
-        const saveData = {
-            id: 1,
-            title: document.getElementById('p-title').value,
-            subtitle: document.getElementById('p-sub').value,
-            bg_color: document.getElementById('p-bg').value,
-            btn_color: document.getElementById('p-btn').value,
-            links: links
-        };
-        if (imageUrl) saveData.profile_img_url = imageUrl;
-
-        const { error } = await supabase.from('link_settings').upsert(saveData);
-        if (error) alert("저장 실패"); else alert("저장 성공!");
     }
 
     loadData();
