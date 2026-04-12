@@ -3,37 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>밖비타 링크모음</title>
-    <meta name="naver-site-verification" content="379ec6105233b6794dc866355f491a80f4bebf9c" />
+    <title>Link Hub</title>
 
-    <!-- ✅ OG / SNS 공유용 메타태그 (하드코딩 - 크롤러가 JS 없이 읽음) -->
-    <meta property="og:type"         content="website">
-    <meta property="og:title"        content="밖비타 링크모음">
-    <meta property="og:description"  content="밖비타 링크 모음 사이트 입니다">
-    <meta property="og:image"        content="https://teexuapywkysdetqolmy.supabase.co/storage/v1/object/public/profiles/profile_1775975693668.png">
-    <meta property="og:image:width"  content="1200">
-    <meta property="og:image:height" content="630">
-    <meta name="twitter:card"        content="summary_large_image">
-    <meta name="twitter:title"       content="밖비타 링크모음">
-    <meta name="twitter:description" content="밖비타 링크 모음 사이트 입니다">
-    <meta name="twitter:image"       content="https://teexuapywkysdetqolmy.supabase.co/storage/v1/object/public/profiles/profile_1775975693668.png">
-
-    <meta id="og-title-dyn"       property="og:title"        content="">
-    <meta id="og-description-dyn" property="og:description"  content="">
-    <meta id="og-image-dyn"       property="og:image"        content="">
-    <meta id="tw-title-dyn"       name="twitter:title"       content="">
-    <meta id="tw-description-dyn" name="twitter:description" content="">
-    <meta id="tw-image-dyn"       name="twitter:image"       content="">
+    <!-- OG / Twitter 메타 — JS가 실행되기 전 빈 상태이므로
+         localStorage 캐시값을 document.write로 즉시 덮어씌움 -->
+    <meta id="og-title"       property="og:title"        content="Link Hub">
+    <meta id="og-description" property="og:description"  content="">
+    <meta id="og-image"       property="og:image"        content="">
+    <meta                     property="og:type"         content="website">
+    <meta id="tw-title"       name="twitter:title"       content="Link Hub">
+    <meta id="tw-description" name="twitter:description" content="">
+    <meta id="tw-image"       name="twitter:image"       content="">
+    <meta                     name="twitter:card"        content="summary_large_image">
     <link id="favicon-link" rel="icon" href="">
 
     <script>
+        /* ── HTML 파싱 시점에 캐시값 즉시 적용 (깜빡임 방지 + OG 선반영) ── */
         try {
             const t  = localStorage.getItem('lh_site_title');
             const bg = localStorage.getItem('lh_loading_bg');
             const tc = localStorage.getItem('lh_loading_tc');
             const lt = localStorage.getItem('lh_loading_title');
             const fi = localStorage.getItem('lh_favicon');
-            if (t) document.title = t;
+
+            if (t) {
+                document.title = t;
+                /* OG title도 캐시 타이틀로 미리 세팅 */
+                document.write('<sc'+'ript>document.getElementById("og-title").content="'
+                    + t.replace(/"/g,'\\"') + '";document.getElementById("tw-title").content="'
+                    + t.replace(/"/g,'\\"') + '";<\/sc'+'ript>');
+            }
             if (fi) document.write('<link rel="icon" href="' + fi + '">');
             if (bg || tc) {
                 const s = document.createElement('style');
@@ -197,11 +196,20 @@ async function init() {
             document.getElementById('favicon-link').href = data.favicon_url;
         }
 
-        /* ── 탭 타이틀 (JS로 동적 업데이트 - 브라우저용) ── */
-        const siteTitle = data.site_title || data.title || '밖비타 링크모음';
-        document.title = siteTitle;
+        /* ── OG / Twitter 메타 — site_title 으로 통일 ── */
+        const siteTitle = data.site_title || data.title || 'Link Hub';
+        const ogImg     = data.profile_img_url || '';
 
-        /* ── 캐시 저장 ── */
+        document.title = siteTitle;
+        const setMeta = (id, val) => { const el=document.getElementById(id); if(el) el.setAttribute('content', val); };
+        setMeta('og-title',       siteTitle);
+        setMeta('og-description', '');
+        setMeta('og-image',       ogImg);
+        setMeta('tw-title',       siteTitle);
+        setMeta('tw-description', '');
+        setMeta('tw-image',       ogImg);
+
+        /* ── 캐시 저장 (다음 새로고침 시 즉시 반영) ── */
         try {
             localStorage.setItem('lh_loading_bg',    loadingBg);
             localStorage.setItem('lh_loading_tc',    loadingTc);
