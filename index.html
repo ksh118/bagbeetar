@@ -5,39 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Link Hub</title>
 
-    <!-- OG / Twitter 메타 (봇 크롤러용 — JS로도 덮어씀) -->
-    <meta id="og-title"       property="og:title"            content="">
-    <meta id="og-description" property="og:description"      content="">
-    <meta id="og-image"       property="og:image"            content="">
-    <meta                     property="og:type"              content="website">
-    <meta id="tw-title"       name="twitter:title"           content="">
-    <meta id="tw-description" name="twitter:description"     content="">
-    <meta id="tw-image"       name="twitter:image"           content="">
-    <meta                     name="twitter:card"            content="summary_large_image">
+    <!-- OG / Twitter 메타 — JS가 실행되기 전 빈 상태이므로
+         localStorage 캐시값을 document.write로 즉시 덮어씌움 -->
+    <meta id="og-title"       property="og:title"        content="Link Hub">
+    <meta id="og-description" property="og:description"  content="">
+    <meta id="og-image"       property="og:image"        content="">
+    <meta                     property="og:type"         content="website">
+    <meta id="tw-title"       name="twitter:title"       content="Link Hub">
+    <meta id="tw-description" name="twitter:description" content="">
+    <meta id="tw-image"       name="twitter:image"       content="">
+    <meta                     name="twitter:card"        content="summary_large_image">
     <link id="favicon-link" rel="icon" href="">
 
     <script>
-        /* ── 새로고침 시 깜빡임 방지: localStorage 값을 HTML 파싱 시점에 즉시 적용 ── */
+        /* ── HTML 파싱 시점에 캐시값 즉시 적용 (깜빡임 방지 + OG 선반영) ── */
         try {
             const t  = localStorage.getItem('lh_site_title');
             const bg = localStorage.getItem('lh_loading_bg');
             const tc = localStorage.getItem('lh_loading_tc');
             const lt = localStorage.getItem('lh_loading_title');
-            if (t)  document.title = t;
+            const fi = localStorage.getItem('lh_favicon');
+
+            if (t) {
+                document.title = t;
+                /* OG title도 캐시 타이틀로 미리 세팅 */
+                document.write('<sc'+'ript>document.getElementById("og-title").content="'
+                    + t.replace(/"/g,'\\"') + '";document.getElementById("tw-title").content="'
+                    + t.replace(/"/g,'\\"') + '";<\/sc'+'ript>');
+            }
+            if (fi) document.write('<link rel="icon" href="' + fi + '">');
             if (bg || tc) {
                 const s = document.createElement('style');
                 s.textContent = '#loading-screen{'
                     + (bg ? 'background:' + bg + '!important;' : '')
-                    + (tc ? 'color:' + tc + '!important;' : '')
                     + '}';
+                if (tc) s.textContent += '.loading-brand,.loading-desc-text{color:' + tc + '!important}';
                 document.head.appendChild(s);
             }
-            if (lt) {
-                document.addEventListener('DOMContentLoaded', () => {
-                    const el = document.getElementById('ld-brand');
-                    if (el) el.innerText = lt;
-                });
-            }
+            if (lt) document.addEventListener('DOMContentLoaded', () => {
+                const el = document.getElementById('ld-brand');
+                if (el) el.innerText = lt;
+            });
         } catch(e) {}
     </script>
 
@@ -183,31 +191,32 @@ async function init() {
         sp.style.borderColor = loadingTc + '33';
         sp.style.borderTopColor = loadingTc;
 
-        /* ── 로딩값 캐시 (새로고침 시 깜빡임 방지) ── */
-        try {
-            localStorage.setItem('lh_loading_bg',    loadingBg);
-            localStorage.setItem('lh_loading_tc',    loadingTc);
-            localStorage.setItem('lh_loading_title', data.loading_title || 'Bagbeetar');
-            localStorage.setItem('lh_site_title',    data.site_title || data.title || 'Link Hub');
-        } catch(e) {}
-
         /* ── 파비콘 ── */
-        if (data.favicon_url) document.getElementById('favicon-link').href = data.favicon_url;
+        if (data.favicon_url) {
+            document.getElementById('favicon-link').href = data.favicon_url;
+        }
 
-        /* ── OG / Twitter 메타 (JS 동적 세팅 - 일반 브라우저용) ── */
+        /* ── OG / Twitter 메타 — site_title 으로 통일 ── */
         const siteTitle = data.site_title || data.title || 'Link Hub';
-        const ogTitle   = data.og_title   || siteTitle;
-        const ogDesc    = data.og_description || data.subtitle || '';
         const ogImg     = data.profile_img_url || '';
 
         document.title = siteTitle;
         const setMeta = (id, val) => { const el=document.getElementById(id); if(el) el.setAttribute('content', val); };
-        setMeta('og-title',       ogTitle);
-        setMeta('og-description', ogDesc);
+        setMeta('og-title',       siteTitle);
+        setMeta('og-description', '');
         setMeta('og-image',       ogImg);
-        setMeta('tw-title',       ogTitle);
-        setMeta('tw-description', ogDesc);
+        setMeta('tw-title',       siteTitle);
+        setMeta('tw-description', '');
         setMeta('tw-image',       ogImg);
+
+        /* ── 캐시 저장 (다음 새로고침 시 즉시 반영) ── */
+        try {
+            localStorage.setItem('lh_loading_bg',    loadingBg);
+            localStorage.setItem('lh_loading_tc',    loadingTc);
+            localStorage.setItem('lh_loading_title', data.loading_title || 'Bagbeetar');
+            localStorage.setItem('lh_site_title',    siteTitle);
+            if (data.favicon_url) localStorage.setItem('lh_favicon', data.favicon_url);
+        } catch(e) {}
 
         /* ── 배경 ── */
         document.body.style.backgroundColor = data.bg_color || '#2d2d2d';
