@@ -360,21 +360,19 @@
             </div>
             <div class="card">
                 <div class="card-title">공유 미리보기 (카카오톡 · SNS)</div>
-                <div class="input-group">
-                    <span class="input-label">공유 이미지</span>
-                    <label for="og-img-file" style="display:block;border:2px dashed #ddd;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#fafafa;" onmouseover="this.style.borderColor='#aaa'" onmouseout="this.style.borderColor='#ddd'">
-                        <img id="og-img-preview" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:none;">
-                        <div id="og-img-hint" style="color:#aaa;font-size:13px;">📷 클릭해서 공유 이미지 업로드</div>
-                    </label>
-                    <input type="file" id="og-img-file" accept="image/*" onchange="onOgImgPick(this)">
+                <div style="font-size:13px;color:#666;line-height:1.7;padding:4px 0;">
+                    사이트를 공유할 때 표시되는 제목은 위의 <b>사이트 탭 이름</b>과 동일하게 표시됩니다.<br>
+                    탭 이름을 바꾸면 공유 제목도 함께 바뀝니다.
                 </div>
-                <div class="input-group">
-                    <span class="input-label">공유 제목</span>
-                    <input type="text" id="og-title" placeholder="예: 밖비타 링크모음">
-                </div>
-                <div class="input-group" style="margin-bottom:0;">
-                    <span class="input-label">공유 설명</span>
-                    <input type="text" id="og-desc" placeholder="예: 밖비타 링크 모음 사이트 입니다">
+                <div style="margin-top:14px;border:1.5px solid #ebebeb;border-radius:12px;overflow:hidden;">
+                    <div style="height:5px;background:linear-gradient(90deg,#4f8ef7,#a259f7);"></div>
+                    <div style="padding:14px 16px;display:flex;gap:14px;align-items:center;background:#fafafa;">
+                        <div id="og-thumb" style="width:64px;height:64px;border-radius:8px;background:#e5e5e5;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:26px;color:#ccc;">🌐</div>
+                        <div>
+                            <div style="font-size:11px;color:#aaa;margin-bottom:3px;">bagbeetar.kro.kr</div>
+                            <div id="og-prev-title" style="font-size:13px;font-weight:700;color:#111;line-height:1.4;">탭 이름을 입력하면 여기에 표시됩니다</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -595,17 +593,11 @@ function updateLoadingPreview() {
     try { localStorage.setItem('lh_loading_bg', bg); } catch(e) {}
 }
 
-// ── OG 이미지 ────────────────────────────────
-let ogImgFile = null;
-let ogImgUrl  = null;
-
-async function onOgImgPick(input) {
-    const f = input.files[0]; if (!f) return;
-    ogImgFile = f;
-    const b64 = await toBase64(f);
-    const preview = document.getElementById('og-img-preview');
-    preview.src = b64; preview.style.display = 'block';
-    document.getElementById('og-img-hint').innerText = '📎 ' + f.name;
+// ── OG 미리보기 (site_title과 동일) ──────────
+function updateOgPreview() {
+    const t = document.getElementById('site-title').value;
+    const el = document.getElementById('og-prev-title');
+    if (el) el.innerText = t || '탭 이름을 입력하면 여기에 표시됩니다';
 }
 
 // ── 색상 미리보기 업데이트 ───────────────────
@@ -871,15 +863,7 @@ async function loadData() {
         if (!data) return;
 
         document.getElementById('site-title').value = data.site_title||'';
-        
-        if (data.og_title) document.getElementById('og-title').value = data.og_title;
-        if (data.og_desc)  document.getElementById('og-desc').value  = data.og_desc;
-        if (data.og_image_url) {
-            ogImgUrl = data.og_image_url;
-            const p = document.getElementById('og-img-preview');
-            p.src = data.og_image_url; p.style.display = 'block';
-            document.getElementById('og-img-hint').innerText = '✅ 저장된 이미지';
-        }
+        updateOgPreview();
         document.getElementById('loading-title').value = data.loading_title||'Bagbeetar';
         document.getElementById('loading-desc').value = data.loading_desc||'';
         document.getElementById('loading-bg').value = data.loading_bg||'#000000';
@@ -912,7 +896,7 @@ async function loadData() {
         if (data.title) ['pv-name','pv-name2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=data.title; });
         if (data.subtitle) ['pv-sub','pv-sub2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=data.subtitle; });
 
-        
+        updateOgPreview();
         updateLoadingPreview();
     } catch(e) { console.error(e); toast('❌ 데이터 로드 실패'); }
     renderSns(); renderLinks(); renderColorPreview();
@@ -926,10 +910,6 @@ async function handleSave() {
         let pUrl=profileUrl, pName=profileFname;
         const pFile=document.getElementById('profile-file').files[0];
         if (pFile) { toast('⏳ 프로필 업로드 중...'); pUrl=await upload(pFile,'profile'); pName=pFile.name; }
-
-        // OG 이미지 업로드
-        let curOgImgUrl = ogImgUrl;
-        if (ogImgFile) { toast('⏳ 공유 이미지 업로드 중...'); curOgImgUrl = await upload(ogImgFile, 'og_image'); ogImgUrl = curOgImgUrl; ogImgFile = null; }
 
         let fUrl=faviconUrl, fName=faviconFname;
         const fFile=document.getElementById('favicon-file').files[0];
@@ -966,9 +946,6 @@ async function handleSave() {
         const payload = {
             id: 1,
             site_title: document.getElementById('site-title').value,
-            og_title: document.getElementById('og-title').value,
-            og_desc:  document.getElementById('og-desc').value,
-            og_image_url: curOgImgUrl || '',
             loading_title: document.getElementById('loading-title').value,
             loading_desc: document.getElementById('loading-desc').value,
             loading_bg: document.getElementById('loading-bg').value,
