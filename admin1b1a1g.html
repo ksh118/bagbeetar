@@ -4,45 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link Hub | Admin</title>
+    <script>
+        /* 로딩 화면 깜빡임 방지 - 페이지 로드 즉시 색상 적용 */
+        try {
+            const c = localStorage.getItem('lh_loading_bg');
+            if (c) document.documentElement.style.setProperty('--init-loading-bg', c);
+        } catch(e){}
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
             font-family: -apple-system, 'Pretendard', 'Helvetica Neue', sans-serif;
-            background: #f0f0f5;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            background: #f0f0f5; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
         }
-
-        /* ── 상단 헤더 ── */
         .topbar {
-            height: 56px;
-            background: #111;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            flex-shrink: 0;
-            z-index: 10;
+            height: 56px; background: #111; display: flex;
+            align-items: center; justify-content: space-between;
+            padding: 0 24px; flex-shrink: 0; z-index: 10;
         }
         .topbar-title { color: white; font-size: 15px; font-weight: 700; letter-spacing: 0.03em; }
         .topbar-title span { color: #777; font-weight: 400; margin-left: 8px; font-size: 13px; }
         .btn-save {
-            padding: 9px 22px; background: white; color: #111;
-            border: none; border-radius: 10px; font-size: 14px;
-            font-weight: 700; cursor: pointer; transition: background 0.15s, opacity 0.15s;
+            padding: 9px 22px; background: white; color: #111; border: none;
+            border-radius: 10px; font-size: 14px; font-weight: 700;
+            cursor: pointer; transition: background 0.15s, opacity 0.15s;
         }
         .btn-save:hover { background: #eee; }
         .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* ── 본문 ── */
         .body-wrap { flex: 1; display: flex; overflow: hidden; }
 
-        /* ── 사이드바 ── */
         .sidebar {
             width: 196px; flex-shrink: 0; background: #1a1a1a;
             display: flex; flex-direction: column;
@@ -50,8 +44,8 @@
         }
         .nav-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 11px 14px; border-radius: 10px;
-            cursor: pointer; color: #777; font-size: 13px; font-weight: 600;
+            padding: 11px 14px; border-radius: 10px; cursor: pointer;
+            color: #777; font-size: 13px; font-weight: 600;
             transition: background 0.15s, color 0.15s;
             user-select: none; white-space: nowrap;
         }
@@ -60,32 +54,24 @@
         .nav-icon { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
         .nav-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 8px 4px; }
 
-        /* ── 메인 패널 ── */
-        .main-panel {
-            flex: 1; overflow-y: auto;
-            padding: 36px 40px; background: #f5f5f8;
-        }
+        .main-panel { flex: 1; overflow-y: auto; padding: 36px 40px; background: #f5f5f8; }
         .tab-panel { display: none; max-width: 680px; }
         .tab-panel.active { display: block; }
         .panel-title { font-size: 22px; font-weight: 800; color: #111; margin-bottom: 4px; }
         .panel-desc { font-size: 13px; color: #aaa; margin-bottom: 28px; line-height: 1.5; }
 
-        /* ── 카드 ── */
         .card {
-            background: white; border-radius: 16px;
-            padding: 24px; margin-bottom: 20px;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+            background: white; border-radius: 16px; padding: 24px;
+            margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.05);
         }
         .card-title {
             font-size: 11px; font-weight: 700; color: #bbb;
             text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 16px;
         }
 
-        /* ── 인풋 ── */
         input[type="text"], input[type="url"] {
-            width: 100%; padding: 11px 14px;
-            border: 1.5px solid #ebebeb; border-radius: 10px;
-            font-size: 14px; outline: none;
+            width: 100%; padding: 11px 14px; border: 1.5px solid #ebebeb;
+            border-radius: 10px; font-size: 14px; outline: none;
             transition: border-color 0.2s, background 0.2s;
             margin-bottom: 10px; background: #fafafa; color: #111;
             font-family: inherit;
@@ -97,14 +83,19 @@
         .input-group { margin-bottom: 16px; }
         .input-group:last-child { margin-bottom: 0; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
         .color-field { display: flex; flex-direction: column; gap: 6px; }
         .color-field small { font-size: 12px; color: #888; font-weight: 600; }
         input[type="color"] {
             width: 100%; height: 50px; border: 1.5px solid #ebebeb;
             border-radius: 10px; cursor: pointer; padding: 4px 6px; background: #fafafa;
         }
+        .opacity-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+        .opacity-row input[type="range"] { flex: 1; accent-color: #333; }
+        .opacity-val { font-size: 13px; font-weight: 700; color: #333; min-width: 36px; text-align: right; }
 
-        /* ── 프로필 ── */
+        /* 프로필 */
         .profile-upload { display: flex; align-items: center; gap: 18px; }
         .profile-preview {
             width: 80px; height: 80px; border-radius: 50%;
@@ -118,7 +109,7 @@
         .upload-label:hover { border-color: #aaa; background: #fafafa; }
         .upload-label .fname { font-weight: 600; color: #333; font-size: 11px; margin-top: 4px; word-break: break-all; }
 
-        /* ── 파비콘 ── */
+        /* 파비콘 */
         .favicon-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
         .favicon-preview {
             width: 46px; height: 46px; border-radius: 10px;
@@ -128,13 +119,13 @@
         }
         .favicon-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
 
-        /* ── OG 미리보기 ── */
+        /* OG 미리보기 */
         .og-preview { border: 1.5px solid #ebebeb; border-radius: 12px; overflow: hidden; margin-top: 16px; }
         .og-bar { height: 5px; background: linear-gradient(90deg,#4f8ef7,#a259f7); }
         .og-body { padding: 14px 16px; display: flex; gap: 14px; align-items: center; background: #fafafa; }
         .og-thumb {
-            width: 64px; height: 64px; border-radius: 8px;
-            background: #e5e5e5; flex-shrink: 0; overflow: hidden;
+            width: 64px; height: 64px; border-radius: 8px; background: #e5e5e5;
+            flex-shrink: 0; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
             font-size: 26px; color: #ccc;
         }
@@ -143,7 +134,7 @@
         .og-title-prev { font-size: 13px; font-weight: 700; color: #111; line-height: 1.4; }
         .og-desc-prev { font-size: 12px; color: #888; margin-top: 3px; line-height: 1.4; }
 
-        /* ── SNS ── */
+        /* SNS */
         .sns-item {
             background: #f9f9f9; border: 1.5px solid #eee;
             border-radius: 12px; padding: 14px 16px;
@@ -182,43 +173,71 @@
         }
         .toggle-btn.on::after { left: 21px; }
 
-        /* ── SNS 미리보기 ── */
-        .sns-preview-wrap {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1.5px solid #f0f0f0;
-        }
-        .sns-preview-label {
-            font-size: 11px; font-weight: 700; color: #bbb;
-            text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 14px;
-        }
-        .sns-preview-box {
-            background: #2d2d2d;
-            border-radius: 14px;
-            padding: 24px 20px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        .sns-preview-name {
-            color: white; font-size: 15px; font-weight: 700;
-        }
-        .sns-preview-sub {
-            color: rgba(255,255,255,0.55); font-size: 12px; margin-bottom: 4px;
-        }
-        .sns-preview-icons {
-            display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
-        }
-        .sns-preview-icon {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: rgba(255,255,255,0.13);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: white; overflow: hidden;
-        }
-        .sns-preview-icon img { width: 100%; height: 100%; object-fit: cover; }
+        /* SNS 미리보기 */
+        .preview-section { margin-top: 24px; padding-top: 24px; border-top: 1.5px solid #f0f0f0; }
+        .preview-label { font-size: 11px; font-weight: 700; color: #bbb; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 14px; }
 
-        /* ── 링크 ── */
+        /* 핸드폰 프레임 미리보기 */
+        .phone-frame {
+            width: 260px; margin: 0 auto;
+            background: #1a1a1a; border-radius: 32px;
+            padding: 12px; position: relative;
+        }
+        .phone-screen {
+            border-radius: 22px; overflow: hidden;
+            transition: background 0.3s;
+        }
+        .phone-inner {
+            padding: 28px 20px 24px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 6px; min-height: 200px;
+        }
+        .pv-profile {
+            width: 70px; height: 70px; border-radius: 50%;
+            object-fit: cover; border: 2px solid rgba(255,255,255,0.3);
+            margin-bottom: 4px;
+        }
+        .pv-name { font-size: 14px; font-weight: 800; color: white; text-align: center; }
+        .pv-sub { font-size: 11px; color: rgba(255,255,255,0.55); text-align: center; margin-bottom: 2px; }
+        .pv-sns-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+        .pv-sns-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: white; overflow: hidden;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        .pv-sns-btn img { width: 100%; height: 100%; object-fit: cover; }
+        .pv-links { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .pv-link-btn {
+            width: 100%; height: 46px; border-radius: 10px;
+            display: flex; align-items: center;
+            font-size: 13px; font-weight: 600; overflow: hidden;
+            transition: background 0.3s;
+        }
+        .pv-link-icon { width: 46px; height: 46px; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .pv-link-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .pv-link-text { flex: 1; text-align: center; font-size: 12px; font-weight: 600; }
+        .pv-link-more { width: 28px; flex-shrink: 0; text-align: center; opacity: 0.3; font-size: 14px; }
+
+        /* 로딩 미리보기 */
+        .loading-preview {
+            border-radius: 14px; padding: 32px 20px;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 14px;
+            transition: background 0.3s;
+        }
+        .loading-prev-title { font-size: 22px; font-weight: 800; letter-spacing: 0.06em; transition: color 0.3s; }
+        .loading-prev-desc { font-size: 12px; opacity: 0.45; transition: color 0.3s; }
+        .loading-spinner {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 2.5px solid transparent;
+            animation: spin 0.8s linear infinite;
+            transition: border-color 0.3s;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 링크 */
         .link-item {
             background: #f9f9f9; border: 1.5px solid #eee;
             border-radius: 12px; padding: 14px;
@@ -259,7 +278,7 @@
         }
         .add-btn:hover { background: #ebebeb; }
 
-        /* ── 토스트 ── */
+        /* 토스트 */
         .toast {
             position: fixed; bottom: 30px; left: 50%;
             transform: translateX(-50%);
@@ -273,15 +292,10 @@
         }
         .toast.show { opacity: 1; }
 
-        /* ── 모바일 ── */
         @media (max-width: 720px) {
             body { height: auto; overflow: auto; }
             .body-wrap { flex-direction: column; overflow: visible; }
-            .sidebar {
-                width: 100%; flex-direction: row; flex-wrap: wrap;
-                padding: 10px 8px; gap: 4px;
-                height: auto; overflow-x: auto; overflow-y: visible;
-            }
+            .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 10px 8px; gap: 4px; height: auto; }
             .nav-divider { display: none; }
             .nav-item { padding: 8px 12px; font-size: 12px; gap: 6px; }
             .main-panel { overflow: visible; padding: 20px 16px; }
@@ -345,11 +359,7 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-title">공유 미리보기 (카카오톡 · SNS) — 선택사항</div>
-                <div style="font-size:12px;color:#f0a500;background:#fffbee;border:1px solid #ffe58f;border-radius:8px;padding:10px 12px;margin-bottom:14px;">
-                    ⚠️ Supabase 테이블에 <b>og_title</b>, <b>og_description</b> 컬럼을 추가해야 저장됩니다.<br>
-                    추가하지 않으면 이 항목은 저장 시 자동으로 건너뜁니다.
-                </div>
+                <div class="card-title">공유 미리보기 (카카오톡 · SNS)</div>
                 <div class="input-group">
                     <span class="input-label">공유 제목</span>
                     <input type="text" id="og-title" placeholder="예: 밖비타 공식 링크 모음" oninput="updateOgPreview()">
@@ -363,7 +373,7 @@
                     <div class="og-body">
                         <div class="og-thumb" id="og-thumb">🌐</div>
                         <div>
-                            <div class="og-domain">링크허브.com</div>
+                            <div class="og-domain">bagbeetar.kro.kr</div>
                             <div class="og-title-prev" id="og-prev-title">공유 제목이 여기에 표시됩니다</div>
                             <div class="og-desc-prev" id="og-prev-desc">공유 설명이 여기에 표시됩니다</div>
                         </div>
@@ -375,23 +385,37 @@
         <!-- 2. 로딩 -->
         <div class="tab-panel" id="tab-loading">
             <div class="panel-title">⏳ 로딩 화면 설정</div>
-            <div class="panel-desc">사이트 접속 시 처음 보이는 로딩 화면을 설정합니다.</div>
+            <div class="panel-desc">사이트 접속 시 처음 보이는 로딩 화면입니다. 색상을 바꾸면 아래 미리보기에 바로 반영됩니다.</div>
             <div class="card">
                 <div class="card-title">텍스트</div>
                 <div class="input-group">
                     <span class="input-label">큰 제목 글자</span>
-                    <input type="text" id="loading-title" placeholder="예: Bagbeetar">
+                    <input type="text" id="loading-title" placeholder="예: Bagbeetar" oninput="updateLoadingPreview()">
                 </div>
                 <div class="input-group">
                     <span class="input-label">설명 문구</span>
-                    <input type="text" id="loading-desc" placeholder="예: 나의 링크 모음">
+                    <input type="text" id="loading-desc" placeholder="예: 나의 링크 모음" oninput="updateLoadingPreview()">
                 </div>
             </div>
             <div class="card">
                 <div class="card-title">색상</div>
                 <div class="grid-2">
-                    <div class="color-field"><small>배경색</small><input type="color" id="loading-bg" value="#000000"></div>
-                    <div class="color-field"><small>글자색</small><input type="color" id="loading-text" value="#ffffff"></div>
+                    <div class="color-field">
+                        <small>배경색</small>
+                        <input type="color" id="loading-bg" value="#000000" oninput="updateLoadingPreview()">
+                    </div>
+                    <div class="color-field">
+                        <small>글자색</small>
+                        <input type="color" id="loading-text" value="#ffffff" oninput="updateLoadingPreview()">
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">미리보기</div>
+                <div class="loading-preview" id="loading-preview">
+                    <div class="loading-prev-title" id="lp-title">Bagbeetar</div>
+                    <div class="loading-spinner" id="lp-spinner"></div>
+                    <div class="loading-prev-desc" id="lp-desc"></div>
                 </div>
             </div>
         </div>
@@ -419,11 +443,11 @@
             <div class="card">
                 <div class="input-group">
                     <span class="input-label">제목 (닉네임 등)</span>
-                    <input type="text" id="p-title" placeholder="예: 밖비타">
+                    <input type="text" id="p-title" placeholder="예: 밖비타" oninput="syncPreviewText()">
                 </div>
                 <div class="input-group">
                     <span class="input-label">부제목</span>
-                    <input type="text" id="p-sub" placeholder="예: 크리에이터 · 유튜버">
+                    <input type="text" id="p-sub" placeholder="예: 크리에이터 · 유튜버" oninput="syncPreviewText()">
                 </div>
             </div>
         </div>
@@ -431,11 +455,55 @@
         <!-- 5. 색상 -->
         <div class="tab-panel" id="tab-color">
             <div class="panel-title">🎨 색상</div>
-            <div class="panel-desc">메인 페이지의 배경색과 링크 버튼 색상을 설정합니다.</div>
-            <div class="card">
-                <div class="grid-2">
-                    <div class="color-field"><small>배경색</small><input type="color" id="p-bg" value="#2d2d2d"></div>
-                    <div class="color-field"><small>버튼색</small><input type="color" id="p-btn" value="#111111"></div>
+            <div class="panel-desc">메인 페이지 배경색, 링크 버튼, SNS 아이콘 버튼 색상을 설정합니다. 오른쪽 미리보기에 바로 반영됩니다.</div>
+            <div style="display:flex; gap:24px; align-items:flex-start;">
+                <div style="flex:1;">
+                    <div class="card">
+                        <div class="card-title">배경 & 링크 버튼</div>
+                        <div class="grid-2" style="margin-bottom:0;">
+                            <div class="color-field">
+                                <small>배경색</small>
+                                <input type="color" id="p-bg" value="#2d2d2d" oninput="updateColorPreview()">
+                            </div>
+                            <div class="color-field">
+                                <small>링크 버튼색</small>
+                                <input type="color" id="p-btn" value="#111111" oninput="updateColorPreview()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">SNS 아이콘 버튼</div>
+                        <div class="grid-2">
+                            <div class="color-field">
+                                <small>버튼 색상</small>
+                                <input type="color" id="sns-btn-color" value="#ffffff" oninput="updateColorPreview()">
+                            </div>
+                            <div class="color-field">
+                                <small>불투명도</small>
+                                <div style="margin-top:8px;">
+                                    <div class="opacity-row">
+                                        <input type="range" id="sns-btn-opacity" min="0" max="100" value="13" oninput="updateColorPreview(); document.getElementById('sns-opacity-val').innerText=this.value+'%'">
+                                        <span class="opacity-val" id="sns-opacity-val">13%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 실시간 미리보기 -->
+                <div style="flex-shrink:0; padding-top:4px;">
+                    <div class="preview-label" style="text-align:center; margin-bottom:10px;">실시간 미리보기</div>
+                    <div class="phone-frame">
+                        <div class="phone-screen" id="pv-screen">
+                            <div class="phone-inner" id="pv-inner">
+                                <img class="pv-profile" id="pv-profile-img" src="https://via.placeholder.com/150" alt="">
+                                <div class="pv-name" id="pv-name">밖비타</div>
+                                <div class="pv-sub" id="pv-sub">크리에이터</div>
+                                <div class="pv-sns-row" id="pv-sns-row"></div>
+                                <div class="pv-links" id="pv-links"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -443,18 +511,25 @@
         <!-- 6. SNS -->
         <div class="tab-panel" id="tab-sns">
             <div class="panel-title">📱 SNS 아이콘</div>
-            <div class="panel-desc">토글로 켜면 부제목 아래에 원형 아이콘이 표시됩니다. 아이콘을 클릭하면 커스텀 이미지로 교체 가능합니다.</div>
-            <div class="card">
-                <div class="card-title">아이콘 설정</div>
-                <div id="sns-container"></div>
-
-                <!-- 실시간 미리보기 -->
-                <div class="sns-preview-wrap">
-                    <div class="sns-preview-label">미리보기</div>
-                    <div class="sns-preview-box" id="sns-preview-box">
-                        <div class="sns-preview-name" id="sns-prev-name">밖비타</div>
-                        <div class="sns-preview-sub" id="sns-prev-sub">크리에이터</div>
-                        <div class="sns-preview-icons" id="sns-prev-icons"></div>
+            <div class="panel-desc">토글로 켜면 부제목 아래에 원형 아이콘이 표시됩니다. 아이콘 클릭 시 커스텀 이미지 교체 가능합니다.</div>
+            <div style="display:flex; gap:24px; align-items:flex-start;">
+                <div style="flex:1;">
+                    <div class="card">
+                        <div class="card-title">아이콘 설정</div>
+                        <div id="sns-container"></div>
+                    </div>
+                </div>
+                <div style="flex-shrink:0; padding-top:4px;">
+                    <div class="preview-label" style="text-align:center; margin-bottom:10px;">실시간 미리보기</div>
+                    <div class="phone-frame">
+                        <div class="phone-screen" id="pv-screen2">
+                            <div class="phone-inner" id="pv-inner2">
+                                <img class="pv-profile" id="pv-profile-img2" src="https://via.placeholder.com/150" alt="">
+                                <div class="pv-name" id="pv-name2">밖비타</div>
+                                <div class="pv-sub" id="pv-sub2">크리에이터</div>
+                                <div class="pv-sns-row" id="pv-sns-row2"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -494,8 +569,6 @@ let snsItems = SNS_DEFS.map(d => ({ ...d, url:'', enabled:false, imgUrl:null, im
 let profileUrl=null, profileFname=null;
 let faviconUrl=null, faviconFname=null;
 let dragSrcIdx = null;
-// og 컬럼 존재 여부 (DB 조회 결과로 판단)
-let hasOgColumns = false;
 
 // ── 탭 전환 ──────────────────────────────────
 function switchTab(tabId) {
@@ -506,6 +579,25 @@ function switchTab(tabId) {
     document.querySelector('.main-panel').scrollTop = 0;
 }
 
+// ── 로딩 화면 미리보기 ────────────────────────
+function updateLoadingPreview() {
+    const bg   = document.getElementById('loading-bg').value;
+    const tc   = document.getElementById('loading-text').value;
+    const title = document.getElementById('loading-title').value || 'Bagbeetar';
+    const desc  = document.getElementById('loading-desc').value;
+    const prev  = document.getElementById('loading-preview');
+    prev.style.background = bg;
+    document.getElementById('lp-title').style.color = tc;
+    document.getElementById('lp-title').innerText = title;
+    document.getElementById('lp-desc').style.color = tc;
+    document.getElementById('lp-desc').innerText = desc;
+    const sp = document.getElementById('lp-spinner');
+    sp.style.borderColor = tc + '33';
+    sp.style.borderTopColor = tc;
+    // localStorage에 저장해서 새로고침 시 즉시 적용
+    try { localStorage.setItem('lh_loading_bg', bg); } catch(e) {}
+}
+
 // ── OG 미리보기 ──────────────────────────────
 function updateOgPreview() {
     const t = document.getElementById('og-title').value;
@@ -514,29 +606,116 @@ function updateOgPreview() {
     document.getElementById('og-prev-desc').innerText  = d || '공유 설명이 여기에 표시됩니다';
 }
 
-// ── SNS 미리보기 업데이트 ─────────────────────
-function updateSnsPreview() {
-    const iconsEl = document.getElementById('sns-prev-icons');
-    iconsEl.innerHTML = '';
-    // 텍스트 미리보기 동기화
-    const title = document.getElementById('p-title') ? document.getElementById('p-title').value : '';
-    const sub   = document.getElementById('p-sub')   ? document.getElementById('p-sub').value   : '';
-    if (title) document.getElementById('sns-prev-name').innerText = title;
-    if (sub)   document.getElementById('sns-prev-sub').innerText  = sub;
+// ── 색상 미리보기 업데이트 ───────────────────
+function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return {r,g,b};
+}
+function getContrastColor(hex) {
+    if (!hex || hex.length < 7) return '#fff';
+    const {r,g,b} = hexToRgb(hex);
+    return (0.299*r + 0.587*g + 0.114*b) > 128 ? '#000' : '#fff';
+}
 
-    const enabled = snsItems.filter(s => s.enabled);
-    if (enabled.length === 0) {
-        iconsEl.innerHTML = '<span style="font-size:12px;color:rgba(255,255,255,0.3);">켜진 SNS 없음</span>';
-        return;
-    }
-    enabled.forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'sns-preview-icon';
-        div.innerHTML = s.imgUrl
-            ? `<img src="${s.imgUrl}" alt="${s.label}">`
-            : `<i class="${s.icon}" style="color:${s.color}"></i>`;
-        iconsEl.appendChild(div);
+function updateColorPreview() {
+    const bg     = document.getElementById('p-bg').value;
+    const btn    = document.getElementById('p-btn').value;
+    const snsColor   = document.getElementById('sns-btn-color').value;
+    const snsOpacity = parseInt(document.getElementById('sns-btn-opacity').value) / 100;
+    const {r,g,b} = hexToRgb(snsColor);
+    const snsBg  = `rgba(${r},${g},${b},${snsOpacity})`;
+
+    // 양쪽 미리보기 화면 배경
+    ['pv-screen','pv-screen2'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.background = bg;
     });
+
+    // SNS 버튼 색
+    document.querySelectorAll('.pv-sns-btn').forEach(btn => {
+        btn.style.background = snsBg;
+    });
+
+    // 링크 버튼 색
+    const btnTextColor = getContrastColor(btn);
+    document.querySelectorAll('.pv-link-btn').forEach(el => {
+        el.style.background = btn;
+        el.style.color = btnTextColor;
+    });
+    document.querySelectorAll('.pv-link-text').forEach(el => {
+        el.style.color = btnTextColor;
+    });
+}
+
+function syncPreviewText() {
+    const name = document.getElementById('p-title').value || '밖비타';
+    const sub  = document.getElementById('p-sub').value  || '';
+    ['pv-name','pv-name2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=name; });
+    ['pv-sub','pv-sub2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=sub; });
+}
+
+// ── 미리보기 전체 렌더 ────────────────────────
+function renderColorPreview() {
+    const bg     = document.getElementById('p-bg').value;
+    const btn    = document.getElementById('p-btn').value;
+    const snsColor   = document.getElementById('sns-btn-color').value;
+    const snsOpacity = parseInt(document.getElementById('sns-btn-opacity').value) / 100;
+    const {r,g,b} = hexToRgb(snsColor);
+    const snsBg  = `rgba(${r},${g},${b},${snsOpacity})`;
+    const btnTextColor = getContrastColor(btn);
+
+    // 화면 배경
+    ['pv-screen','pv-screen2'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.background = bg;
+    });
+
+    // 프로필 이미지 동기화
+    const pSrc = profileUrl || document.getElementById('profile-preview').src;
+    ['pv-profile-img','pv-profile-img2'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && pSrc) el.src = pSrc;
+    });
+
+    // 텍스트 동기화
+    syncPreviewText();
+
+    // SNS 버튼 렌더 (두 미리보기 모두)
+    ['pv-sns-row','pv-sns-row2'].forEach(rowId => {
+        const row = document.getElementById(rowId);
+        if (!row) return;
+        row.innerHTML = '';
+        snsItems.filter(s => s.enabled).forEach(s => {
+            const btn = document.createElement('div');
+            btn.className = 'pv-sns-btn';
+            btn.style.background = snsBg;
+            btn.innerHTML = s.imgUrl
+                ? `<img src="${s.imgUrl}" alt="${s.label}">`
+                : `<i class="${s.icon}" style="color:${s.color};font-size:16px;"></i>`;
+            row.appendChild(btn);
+        });
+    });
+
+    // 링크 버튼 미리보기 (색상 탭에만)
+    const pvLinks = document.getElementById('pv-links');
+    if (pvLinks) {
+        pvLinks.innerHTML = '';
+        const sample = links.length ? links.slice(0,3) : [{text:'링크 버튼 예시',imgUrl:null}];
+        sample.forEach(l => {
+            const el = document.createElement('div');
+            el.className = 'pv-link-btn';
+            el.style.background = btn;
+            el.style.color = btnTextColor;
+            if (l.imgUrl) {
+                el.innerHTML = `<div class="pv-link-icon"><img src="${l.imgUrl}"></div><div class="pv-link-text" style="color:${btnTextColor}">${l.text||'링크'}</div><div class="pv-link-more">⋮</div>`;
+            } else {
+                el.innerHTML = `<div style="width:16px;flex-shrink:0;"></div><div class="pv-link-text" style="color:${btnTextColor}">${l.text||'링크 버튼 예시'}</div><div class="pv-link-more">⋮</div>`;
+            }
+            pvLinks.appendChild(el);
+        });
+    }
 }
 
 // ── 유틸 ────────────────────────────────────
@@ -567,13 +746,17 @@ async function onFaviconPick(input) {
 // ── 프로필 ──────────────────────────────────
 function onProfilePick(input) {
     const f = input.files[0]; if (!f) return;
-    const r = new FileReader();
-    r.onload = e => {
+    const reader = new FileReader();
+    reader.onload = e => {
         document.getElementById('profile-preview').src = e.target.result;
         document.getElementById('profile-fname').innerText = f.name;
         document.getElementById('og-thumb').innerHTML = `<img src="${e.target.result}">`;
+        ['pv-profile-img','pv-profile-img2'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.src = e.target.result;
+        });
     };
-    r.readAsDataURL(f);
+    reader.readAsDataURL(f);
 }
 
 // ── SNS 렌더 ────────────────────────────────
@@ -598,7 +781,7 @@ function renderSns() {
         `;
         c.appendChild(div);
     });
-    updateSnsPreview();
+    renderColorPreview();
 }
 
 async function onSnsImg(i,input) {
@@ -615,58 +798,44 @@ function renderLinks() {
     c.innerHTML = '';
     links.forEach((l,i) => {
         const div = document.createElement('div');
-        div.className = 'link-item';
-        div.draggable = true;
+        div.className = 'link-item'; div.draggable = true;
 
         const handle = document.createElement('div');
         handle.className = 'drag-handle'; handle.title = '드래그해서 순서 변경'; handle.textContent = '⠿';
 
-        const body = document.createElement('div');
-        body.className = 'link-body';
+        const body = document.createElement('div'); body.className = 'link-body';
+        const top = document.createElement('div'); top.className = 'link-top';
 
-        const top = document.createElement('div');
-        top.className = 'link-top';
-
-        const imgBtn = document.createElement('div');
-        imgBtn.className = 'link-img-btn';
+        const imgBtn = document.createElement('div'); imgBtn.className = 'link-img-btn';
         imgBtn.innerHTML = l.imgUrl
             ? `<img src="${l.imgUrl}"><div class="link-img-overlay">📷</div>`
             : `<span class="plus">+</span>`;
 
         const fileInput = document.createElement('input');
-        fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.style.display = 'none';
+        fileInput.type='file'; fileInput.accept='image/*'; fileInput.style.display='none';
         fileInput.addEventListener('change', function(){ onLinkImg(i, this); });
         imgBtn.addEventListener('click', () => fileInput.click());
 
-        const num = document.createElement('span');
-        num.className = 'link-num'; num.textContent = `링크 ${i+1}`;
-
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-btn'; removeBtn.textContent = '✖';
-        removeBtn.addEventListener('click', () => { links.splice(i,1); renderLinks(); });
+        const num = document.createElement('span'); num.className='link-num'; num.textContent=`링크 ${i+1}`;
+        const removeBtn = document.createElement('button'); removeBtn.className='remove-btn'; removeBtn.textContent='✖';
+        removeBtn.addEventListener('click', () => { links.splice(i,1); renderLinks(); renderColorPreview(); });
 
         top.appendChild(imgBtn); top.appendChild(fileInput); top.appendChild(num); top.appendChild(removeBtn);
         body.appendChild(top);
 
-        if (l.imgName) {
-            const nm = document.createElement('div'); nm.className='img-name'; nm.textContent='📎 '+l.imgName;
-            body.appendChild(nm);
-        }
+        if (l.imgName) { const nm=document.createElement('div'); nm.className='img-name'; nm.textContent='📎 '+l.imgName; body.appendChild(nm); }
 
         const txtInput = document.createElement('input');
         txtInput.type='text'; txtInput.placeholder='버튼 텍스트'; txtInput.value=l.text||'';
-        txtInput.addEventListener('input', function(){ links[i].text=this.value; });
-        txtInput.addEventListener('change', function(){ links[i].text=this.value; });
+        txtInput.addEventListener('input', function(){ links[i].text=this.value; renderColorPreview(); });
 
         const urlInput = document.createElement('input');
         urlInput.type='url'; urlInput.placeholder='URL (https://...)'; urlInput.value=l.url||'';
         urlInput.addEventListener('input', function(){ links[i].url=this.value; });
-        urlInput.addEventListener('change', function(){ links[i].url=this.value; });
 
         const descInput = document.createElement('input');
-        descInput.type='text'; descInput.placeholder='설명 (선택, 버튼 아래 작은 글씨)'; descInput.value=l.desc||'';
+        descInput.type='text'; descInput.placeholder='설명 (선택)'; descInput.value=l.desc||'';
         descInput.addEventListener('input', function(){ links[i].desc=this.value; });
-        descInput.addEventListener('change', function(){ links[i].desc=this.value; });
 
         body.appendChild(txtInput); body.appendChild(urlInput); body.appendChild(descInput);
         div.appendChild(handle); div.appendChild(body);
@@ -689,7 +858,7 @@ function addLink() {
 async function onLinkImg(i,input) {
     const f=input.files[0]; if(!f) return;
     links[i].imgUrl=await toBase64(f); links[i].imgName=f.name; links[i]._file=f;
-    renderLinks();
+    renderLinks(); renderColorPreview();
 }
 
 // ── 불러오기 ────────────────────────────────
@@ -699,14 +868,9 @@ async function loadData() {
         if (error) throw error;
         if (!data) return;
 
-        // og 컬럼 존재 여부 확인
-        hasOgColumns = ('og_title' in data);
-
         document.getElementById('site-title').value = data.site_title||'';
-        if (hasOgColumns) {
-            document.getElementById('og-title').value = data.og_title||'';
-            document.getElementById('og-description').value = data.og_description||'';
-        }
+        document.getElementById('og-title').value = data.og_title||'';
+        document.getElementById('og-description').value = data.og_description||'';
         document.getElementById('loading-title').value = data.loading_title||'Bagbeetar';
         document.getElementById('loading-desc').value = data.loading_desc||'';
         document.getElementById('loading-bg').value = data.loading_bg||'#000000';
@@ -715,6 +879,13 @@ async function loadData() {
         document.getElementById('p-sub').value = data.subtitle||'';
         document.getElementById('p-bg').value = data.bg_color||'#2d2d2d';
         document.getElementById('p-btn').value = data.btn_color||'#111111';
+
+        // SNS 버튼 색상
+        if (data.sns_btn_color) document.getElementById('sns-btn-color').value = data.sns_btn_color;
+        if (data.sns_btn_opacity != null) {
+            document.getElementById('sns-btn-opacity').value = Math.round(data.sns_btn_opacity * 100);
+            document.getElementById('sns-opacity-val').innerText = Math.round(data.sns_btn_opacity * 100) + '%';
+        }
 
         if (data.profile_img_url) {
             document.getElementById('profile-preview').src = data.profile_img_url;
@@ -728,13 +899,14 @@ async function loadData() {
         if (Array.isArray(data.sns_items)) snsItems=data.sns_items.map(s=>({...s,_file:null}));
         links=(data.links||[]).map(l=>({...l,_file:null}));
 
-        // 미리보기 초기값
-        if (data.title) document.getElementById('sns-prev-name').innerText = data.title;
-        if (data.subtitle) document.getElementById('sns-prev-sub').innerText = data.subtitle;
+        // 미리보기 텍스트 동기화
+        if (data.title) ['pv-name','pv-name2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=data.title; });
+        if (data.subtitle) ['pv-sub','pv-sub2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerText=data.subtitle; });
 
         updateOgPreview();
+        updateLoadingPreview();
     } catch(e) { console.error(e); toast('❌ 데이터 로드 실패'); }
-    renderSns(); renderLinks();
+    renderSns(); renderLinks(); renderColorPreview();
 }
 
 // ── 저장 ────────────────────────────────────
@@ -776,10 +948,13 @@ async function handleSave() {
             linkSave.push(obj);
         }
 
-        // 기본 payload (og 컬럼 제외)
+        const snsBtnOpacity = parseInt(document.getElementById('sns-btn-opacity').value) / 100;
+
         const payload = {
             id: 1,
             site_title: document.getElementById('site-title').value,
+            og_title: document.getElementById('og-title').value,
+            og_description: document.getElementById('og-description').value,
             loading_title: document.getElementById('loading-title').value,
             loading_desc: document.getElementById('loading-desc').value,
             loading_bg: document.getElementById('loading-bg').value,
@@ -788,31 +963,36 @@ async function handleSave() {
             subtitle: document.getElementById('p-sub').value,
             bg_color: document.getElementById('p-bg').value,
             btn_color: document.getElementById('p-btn').value,
+            sns_btn_color: document.getElementById('sns-btn-color').value,
+            sns_btn_opacity: snsBtnOpacity,
             profile_img_url: pUrl, profile_file_name: pName,
             favicon_url: fUrl, favicon_file_name: fName,
             sns_items: snsSave, links: linkSave,
         };
 
-        // og 컬럼이 있을 때만 포함
-        if (hasOgColumns) {
-            payload.og_title = document.getElementById('og-title').value;
-            payload.og_description = document.getElementById('og-description').value;
-        }
+        // loading_bg를 localStorage에 저장해 다음 로드 시 깜빡임 방지
+        try { localStorage.setItem('lh_loading_bg', payload.loading_bg); } catch(e) {}
 
         let { error } = await sb.from('link_settings').update(payload).eq('id', 1);
         if (error) {
-            const ins = await sb.from('link_settings').insert(payload);
-            if (ins.error) throw new Error(ins.error.message||JSON.stringify(ins.error));
+            // og/sns 컬럼 없을 경우 제외하고 재시도
+            const safe = {...payload};
+            delete safe.og_title; delete safe.og_description;
+            delete safe.sns_btn_color; delete safe.sns_btn_opacity;
+            let { error: e2 } = await sb.from('link_settings').update(safe).eq('id', 1);
+            if (e2) {
+                const ins = await sb.from('link_settings').insert(safe);
+                if (ins.error) throw new Error(ins.error.message||JSON.stringify(ins.error));
+            }
+            toast('⚠️ 저장됨 (og/sns_btn 컬럼 없어서 일부 생략됨)', 4000);
+        } else {
+            toast('✅ 저장 완료! (링크 '+linkSave.length+'개)');
         }
-
-        const { data:verify, error:verifyErr } = await sb.from('link_settings').select('id,title,links').eq('id',1).single();
-        if (verifyErr) throw new Error('저장 확인 실패: '+verifyErr.message);
 
         profileUrl=pUrl; profileFname=pName;
         faviconUrl=fUrl; faviconFname=fName;
         snsItems=snsSave.map(s=>({...s,_file:null}));
         links=linkSave.map(l=>({...l,_file:null}));
-        toast('✅ 저장 완료! (링크 '+linkSave.length+'개)');
     } catch(e) {
         toast('❌ 저장 실패: '+(e?.message||JSON.stringify(e)||'알 수 없는 오류'), 5000);
     } finally {
