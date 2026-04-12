@@ -347,7 +347,7 @@
                 <div class="card-title">탭 & 파비콘</div>
                 <div class="input-group">
                     <span class="input-label">사이트 탭 이름</span>
-                    <input type="text" id="site-title" placeholder="예: 밖비타 링크">
+                    <input type="text" id="site-title" placeholder="예: 밖비타 링크" oninput="document.getElementById('og-prev-title').innerText=this.value||'탭 이름을 입력하면 여기에 표시됩니다'">
                 </div>
                 <div class="favicon-row">
                     <div class="favicon-preview" id="favicon-preview">🌐</div>
@@ -360,22 +360,17 @@
             </div>
             <div class="card">
                 <div class="card-title">공유 미리보기 (카카오톡 · SNS)</div>
-                <div class="input-group">
-                    <span class="input-label">공유 제목</span>
-                    <input type="text" id="og-title" placeholder="예: 밖비타 공식 링크 모음" oninput="updateOgPreview()">
+                <div style="font-size:13px;color:#666;line-height:1.7;padding:4px 0;">
+                    사이트를 공유할 때 표시되는 제목은 위의 <b>사이트 탭 이름</b>과 동일하게 표시됩니다.<br>
+                    탭 이름을 바꾸면 공유 제목도 함께 바뀝니다.
                 </div>
-                <div class="input-group">
-                    <span class="input-label">공유 설명</span>
-                    <input type="text" id="og-description" placeholder="예: 유튜브, SNS 등 모든 링크를 여기서 확인하세요" oninput="updateOgPreview()">
-                </div>
-                <div class="og-preview">
-                    <div class="og-bar"></div>
-                    <div class="og-body">
-                        <div class="og-thumb" id="og-thumb">🌐</div>
+                <div style="margin-top:14px;border:1.5px solid #ebebeb;border-radius:12px;overflow:hidden;">
+                    <div style="height:5px;background:linear-gradient(90deg,#4f8ef7,#a259f7);"></div>
+                    <div style="padding:14px 16px;display:flex;gap:14px;align-items:center;background:#fafafa;">
+                        <div id="og-thumb" style="width:64px;height:64px;border-radius:8px;background:#e5e5e5;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:26px;color:#ccc;">🌐</div>
                         <div>
-                            <div class="og-domain">bagbeetar.kro.kr</div>
-                            <div class="og-title-prev" id="og-prev-title">공유 제목이 여기에 표시됩니다</div>
-                            <div class="og-desc-prev" id="og-prev-desc">공유 설명이 여기에 표시됩니다</div>
+                            <div style="font-size:11px;color:#aaa;margin-bottom:3px;">bagbeetar.kro.kr</div>
+                            <div id="og-prev-title" style="font-size:13px;font-weight:700;color:#111;line-height:1.4;">탭 이름을 입력하면 여기에 표시됩니다</div>
                         </div>
                     </div>
                 </div>
@@ -598,12 +593,11 @@ function updateLoadingPreview() {
     try { localStorage.setItem('lh_loading_bg', bg); } catch(e) {}
 }
 
-// ── OG 미리보기 ──────────────────────────────
+// ── OG 미리보기 (site_title과 동일) ──────────
 function updateOgPreview() {
-    const t = document.getElementById('og-title').value;
-    const d = document.getElementById('og-description').value;
-    document.getElementById('og-prev-title').innerText = t || '공유 제목이 여기에 표시됩니다';
-    document.getElementById('og-prev-desc').innerText  = d || '공유 설명이 여기에 표시됩니다';
+    const t = document.getElementById('site-title').value;
+    const el = document.getElementById('og-prev-title');
+    if (el) el.innerText = t || '탭 이름을 입력하면 여기에 표시됩니다';
 }
 
 // ── 색상 미리보기 업데이트 ───────────────────
@@ -869,8 +863,7 @@ async function loadData() {
         if (!data) return;
 
         document.getElementById('site-title').value = data.site_title||'';
-        document.getElementById('og-title').value = data.og_title||'';
-        document.getElementById('og-description').value = data.og_description||'';
+        updateOgPreview();
         document.getElementById('loading-title').value = data.loading_title||'Bagbeetar';
         document.getElementById('loading-desc').value = data.loading_desc||'';
         document.getElementById('loading-bg').value = data.loading_bg||'#000000';
@@ -953,8 +946,6 @@ async function handleSave() {
         const payload = {
             id: 1,
             site_title: document.getElementById('site-title').value,
-            og_title: document.getElementById('og-title').value,
-            og_description: document.getElementById('og-description').value,
             loading_title: document.getElementById('loading-title').value,
             loading_desc: document.getElementById('loading-desc').value,
             loading_bg: document.getElementById('loading-bg').value,
@@ -977,7 +968,6 @@ async function handleSave() {
         if (error) {
             // og/sns 컬럼 없을 경우 제외하고 재시도
             const safe = {...payload};
-            delete safe.og_title; delete safe.og_description;
             delete safe.sns_btn_color; delete safe.sns_btn_opacity;
             let { error: e2 } = await sb.from('link_settings').update(safe).eq('id', 1);
             if (e2) {
